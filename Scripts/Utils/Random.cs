@@ -5,6 +5,7 @@ public static class Random {
 
 	public static void Init() {
 		rng.Randomize();
+		Console.Instance.PrintSuccess("Random initialized");
 	}
 
 	public static int RangeI(int min, int max) => rng.RandiRange(min, max);

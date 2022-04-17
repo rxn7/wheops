@@ -1,18 +1,20 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=17 format=2]
 
-[ext_resource path="res://Scripts/Player.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/Player/Player.cs" type="Script" id=1]
 [ext_resource path="res://environment.tres" type="Environment" id=2]
-[ext_resource path="res://Scripts/Crosshair.cs" type="Script" id=3]
-[ext_resource path="res://Scripts/HUD.cs" type="Script" id=4]
+[ext_resource path="res://Scripts/UI/Crosshair.cs" type="Script" id=3]
+[ext_resource path="res://Scripts/UI/HUD.cs" type="Script" id=4]
 [ext_resource path="res://Models/AAC Honey Badger/AAC Honey Badger.glb" type="PackedScene" id=5]
-[ext_resource path="res://Scripts/WeaponManager.cs" type="Script" id=6]
-[ext_resource path="res://Scripts/Weapon.cs" type="Script" id=7]
+[ext_resource path="res://Scripts/Weapon System/WeaponManager.cs" type="Script" id=6]
+[ext_resource path="res://Scripts/Weapon System/Weapon.cs" type="Script" id=7]
 [ext_resource path="res://Weapons/aac_honey_badger.tres" type="Resource" id=8]
-[ext_resource path="res://Scripts/WeaponSway.cs" type="Script" id=9]
-[ext_resource path="res://Fonts/Hunterz-40-1.tres" type="DynamicFont" id=10]
+[ext_resource path="res://Scripts/Weapon System/WeaponSway.cs" type="Script" id=9]
+[ext_resource path="res://Fonts/Plasmatic-40-1.tres" type="DynamicFont" id=10]
 [ext_resource path="res://Models/S&W Model 39/s&w model 39.glb" type="PackedScene" id=11]
 [ext_resource path="res://Weapons/s&w model 39.tres" type="Resource" id=12]
 [ext_resource path="res://Sounds/slide_loop.wav" type="AudioStream" id=13]
+[ext_resource path="res://Fonts/Monofonto-14-1.tres" type="DynamicFont" id=14]
+[ext_resource path="res://Scripts/UI/DebugLabel.cs" type="Script" id=15]
 
 [sub_resource type="CapsuleShape" id=1]
 radius = 0.8
@@ -85,17 +87,29 @@ rect_pivot_offset = Vector2( -89.5, -27 )
 mouse_filter = 2
 input_pass_on_modal_close_click = false
 
-[node name="Ammo" type="Label" parent="HUD"]
-anchor_left = 0.819
-anchor_top = 0.93
+[node name="WeaponInfo" type="Label" parent="HUD"]
+anchor_left = 0.781
+anchor_top = 0.785
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 0.343933
-margin_top = -6.10352e-05
+margin_left = 0.255981
+margin_top = -3.05176e-05
 custom_fonts/font = ExtResource( 10 )
-text = "30 / 30"
+text = "AKM
+30 / 30"
 align = 1
 valign = 1
+
+[node name="Debug" type="Label" parent="HUD"]
+anchor_right = 0.159
+anchor_bottom = 0.088
+margin_right = 0.18399
+margin_bottom = 0.199997
+custom_fonts/font = ExtResource( 14 )
+text = "FPS: 60"
+align = 1
+valign = 1
+script = ExtResource( 15 )
 
 [node name="SlidePlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 13 )

@@ -1,0 +1,78 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Scripts/UI/Console.cs" type="Script" id=1]
+[ext_resource path="res://Themes/ConsoleTheme.tres" type="Theme" id=2]
+[ext_resource path="res://Fonts/Monofonto-22-1.tres" type="DynamicFont" id=3]
+
+[sub_resource type="StyleBoxEmpty" id=1]
+
+[node name="Console" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_horizontal_guides_": [ -61.0 ]
+}
+
+[node name="Output" type="RichTextLabel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 0.328
+margin_bottom = 0.199997
+focus_mode = 2
+mouse_default_cursor_shape = 1
+theme = ExtResource( 2 )
+custom_fonts/mono_font = ExtResource( 3 )
+custom_fonts/bold_italics_font = ExtResource( 3 )
+custom_fonts/italics_font = ExtResource( 3 )
+custom_fonts/bold_font = ExtResource( 3 )
+custom_fonts/normal_font = ExtResource( 3 )
+bbcode_enabled = true
+scroll_following = true
+selection_enabled = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="InputHolder" type="ColorRect" parent="."]
+anchor_top = 0.329
+anchor_right = 1.0
+anchor_bottom = 0.366
+margin_left = 0.631386
+margin_top = 0.00521851
+margin_right = 0.631348
+margin_bottom = 0.0452271
+mouse_filter = 1
+color = Color( 0, 0, 0, 0.823529 )
+
+[node name="Input" type="LineEdit" parent="InputHolder"]
+anchor_left = 0.011
+anchor_right = 1.0
+anchor_bottom = 0.875
+margin_left = 0.879999
+margin_top = 4.0
+margin_bottom = -3.8147e-06
+custom_colors/cursor_color = Color( 0, 1, 0, 1 )
+custom_styles/normal = SubResource( 1 )
+max_length = 50
+context_menu_enabled = false
+virtual_keyboard_enabled = false
+placeholder_text = "type your command..."
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="prefix" type="Label" parent="InputHolder/Input"]
+anchor_left = -0.012
+anchor_bottom = 1.0
+margin_left = 0.776001
+margin_top = 1.33484
+margin_bottom = 1.33484
+text = "]"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="text_changed" from="InputHolder/Input" to="." method="OnInputChanged"]
+[connection signal="text_entered" from="InputHolder/Input" to="." method="OnInputEntered"]

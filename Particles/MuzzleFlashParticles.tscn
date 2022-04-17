@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=2]
 
-[ext_resource path="res://Scripts/OneShotParticles.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/Misc/OneShotParticles.cs" type="Script" id=1]
 
 [sub_resource type="Gradient" id=1]
 offsets = PoolRealArray( 0.576602, 1 )
@@ -15,7 +15,8 @@ _data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
 [sub_resource type="CurveTexture" id=7]
 curve = SubResource( 6 )
 
-[sub_resource type="ParticlesMaterial" id=3]
+[sub_resource type="ParticlesMaterial" id=10]
+resource_name = "Muzzle Flash Particles Material"
 lifetime_randomness = 0.43
 direction = Vector3( 0, 0, -1 )
 spread = 5.6
@@ -47,6 +48,6 @@ lifetime = 0.15
 one_shot = true
 explosiveness = 1.0
 randomness = 0.45
-process_material = SubResource( 3 )
+process_material = SubResource( 10 )
 draw_pass_1 = SubResource( 9 )
 script = ExtResource( 1 )

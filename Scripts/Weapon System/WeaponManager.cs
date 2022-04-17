@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 public class WeaponManager : Node {
-	public static readonly PackedScene MUZZLEFLASH_SCENE = GD.Load<PackedScene>("res://Scenes/MuzzleFlashParticles.tscn");
+	public static readonly PackedScene MUZZLEFLASH_SCENE = GD.Load<PackedScene>("res://Particles/MuzzleFlashParticles.tscn");
 	public static readonly AudioStream DRYFIRE_SOUND = GD.Load<AudioStream>("res://Sounds/dryfire.wav");
 	public static readonly AudioStream RELOAD_SOUND = GD.Load<AudioStream>("res://Sounds/reload.wav");
 
@@ -21,6 +21,8 @@ public class WeaponManager : Node {
 	public bool HasJustShot() => m_draw_timer == 0 && m_last_shot <= 0.3;
 
 	public override void _Ready() {
+		MaterialCache.LoadParticles(MUZZLEFLASH_SCENE);
+
 		m_weapons = GetChildren().Cast<Weapon>().ToList();
 
 		foreach(Weapon w in m_weapons) {
@@ -115,14 +117,14 @@ public class WeaponManager : Node {
 
 		m_held_weapon = m_weapons[idx];
 		m_held_weapon.Visible = true;
-		Player.Instance.m_hud.UpdateAmmoLabel();
+		Player.Instance.m_hud.UpdateWeaponInfoLabel();
 	}
 
 	private void Shoot() {
 		SpawnMuzzleFlash();
 		m_last_shot = 0;
 		m_held_weapon.Shoot();
-		Player.Instance.m_hud.UpdateAmmoLabel();
+		Player.Instance.m_hud.UpdateWeaponInfoLabel();
 	}
 
 	private void SpawnMuzzleFlash() {
@@ -141,13 +143,13 @@ public class WeaponManager : Node {
 
 		m_reloading = true;
 		m_reload_timer = 0;
-		Player.Instance.m_hud.UpdateAmmoLabel();
+		Player.Instance.m_hud.UpdateWeaponInfoLabel();
 	}
 
 	private void FinishReload() {
 		m_reloading = false;
 		m_held_weapon.Reload();
 		SoundEffect.Spawn(this, RELOAD_SOUND, Random.RangeF(0.9f,1.1f));
-		Player.Instance.m_hud.UpdateAmmoLabel();
+		Player.Instance.m_hud.UpdateWeaponInfoLabel();
 	}
 }

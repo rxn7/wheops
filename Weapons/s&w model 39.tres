@@ -1,6 +1,6 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
-[ext_resource path="res://Scripts/WeaponData.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/Weapon System/WeaponData.cs" type="Script" id=1]
 [ext_resource path="res://Sounds/s&w model 39.wav" type="AudioStream" id=2]
 
 [resource]
@@ -12,7 +12,7 @@ m_reload_time = 1.6
 m_draw_time = 0.3
 m_aim_fov = 70.0
 m_aim_speed = 15.0
-m_aim_move_speed_multiplier = 0.8
+m_aim_move_speed_multiplier = 0.95
 m_sway_speed = 10.0
 m_sway_amount = 0.01
 m_camera_recoil_relax_speed = 11.0

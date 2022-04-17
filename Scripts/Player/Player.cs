@@ -9,8 +9,7 @@ public class Player : KinematicBody {
 		Sliding,
 	};
 
-	private static Player _instance;
-	public static Player Instance => _instance;
+	public static Player Instance { get; private set; } 
 
 	public const float HEAD_LERP_WEIGHT = 20; 
 	public const float RUN_SPEED = 10;
@@ -40,16 +39,17 @@ public class Player : KinematicBody {
 	public const float SLIDE_ACCEL = 1f;
 	public static readonly AudioStream FOOTSTEP_SOUND = GD.Load<AudioStream>("res://Sounds/footstep.wav");
 
+	public HUD m_hud;
+	public Position3D m_head;
+	public Position3D m_camera_holder;
+	public Camera m_camera;
+	public WeaponManager m_weapon_mgr;
+
+	private Position3D m_viewmodel_bobber, m_viewmodel_holder;
 	private CollisionShape m_shape;
 	private AudioStreamPlayer m_slide_player;
 	private RayCast m_head_bonker_raycast;
-	public Position3D m_head;
-	public Position3D m_camera_holder, m_viewmodel_bobber, m_viewmodel_holder;
-	public Camera m_camera;
-	private Crosshair m_crosshair;
-	public WeaponManager m_weapon_mgr;
 	private WeaponSway m_weapon_sway;
-	public HUD m_hud;
 	private Vector3 m_target_recoil;
 	private Vector3 m_recoil;
 
@@ -70,10 +70,8 @@ public class Player : KinematicBody {
 	public float Speed() => (m_velocity + Vector3.Up * m_gravity).Length();
 
 	public override void _Ready() {
-		_instance = this;
-
-		Random.Init();
-
+		Instance = this;
+		
 		m_hud = GetNode<HUD>("HUD");
 		m_slide_player = GetNode<AudioStreamPlayer>("SlidePlayer");
 		m_head = GetNode<Position3D>("Head");
@@ -85,13 +83,12 @@ public class Player : KinematicBody {
 		m_weapon_sway = m_camera.GetNode<WeaponSway>("WeaponSway");
 		m_viewmodel_bobber = m_weapon_sway.GetNode<Position3D>("ViewmodelBobber");
 		m_viewmodel_holder = m_viewmodel_bobber.GetNode<Position3D>("ViewmodelHolder");
-		m_crosshair = GetNode<Crosshair>("HUD/Crosshair");
 		m_weapon_mgr = m_viewmodel_holder.GetNode<WeaponManager>("WeaponManager");
 
 		Input.SetMouseMode(Input.MouseMode.Captured);
 
-		m_crosshair.SetGap(24);
-		m_crosshair.SetColor(Color.Color8(20,240,20));
+		m_hud.m_crosshair.SetGap(24);
+		m_hud.m_crosshair.SetColor(Color.Color8(20,240,20));
 		m_weapon_mgr.QueueWeaponChange(0);
 	}
 
@@ -115,7 +112,7 @@ public class Player : KinematicBody {
 
 		m_camera_holder.RotationDegrees = new Vector3(Mathf.Clamp(m_head.RotationDegrees.x + m_recoil.x, -89, 89), RotationDegrees.y + m_recoil.y, Mathf.Lerp(m_camera_holder.RotationDegrees.z, m_camera_tilt, BOB_LERP_WEIGHT*dt));
 
-		m_crosshair.Visible = !m_aiming;
+		m_hud.m_crosshair.Visible = !m_aiming;
 	}
 
 	public override void _PhysicsProcess(float dt) {
@@ -123,11 +120,13 @@ public class Player : KinematicBody {
 	}
 
 	public override void _UnhandledInput(InputEvent e) {
+		if(Console.Instance.IsActive()) return;
+
 		if(e is InputEventMouseMotion mouse_motion_e) {
 			m_head.RotateX(Mathf.Deg2Rad(-mouse_motion_e.Relative.y * m_mouse_sensitivity)); Vector3 head_r = m_head.RotationDegrees;
 			head_r.x = Mathf.Clamp(head_r.x, -89, 89);
 			m_head.RotationDegrees = head_r;
-RotateY(Mathf.Deg2Rad(-mouse_motion_e.Relative.x * m_mouse_sensitivity));
+			RotateY(Mathf.Deg2Rad(-mouse_motion_e.Relative.x * m_mouse_sensitivity));
 			Vector3 r = RotationDegrees;
 			while(r.y >= 180) r.y -= 180;
 			while(r.y <= -180) r.y += 180;
@@ -136,8 +135,10 @@ RotateY(Mathf.Deg2Rad(-mouse_motion_e.Relative.x * m_mouse_sensitivity));
 	}
 
 	private void TakeInput(float dt) {
-		m_input = new Vector3(0,0,0);
+		m_input = Vector3.Zero;
 		m_camera_tilt = 0;
+
+		if(Console.Instance.IsActive()) return;
 
 		Vector3 forward = GlobalTransform.basis.z;
 		Vector3 right = GlobalTransform.basis.x;
@@ -375,6 +376,7 @@ RotateY(Mathf.Deg2Rad(-mouse_motion_e.Relative.x * m_mouse_sensitivity));
 
 		m_velocity = m_direction * m_speed;
 		if(m_aiming) m_velocity *= m_weapon_mgr.m_held_weapon.m_data.m_aim_move_speed_multiplier;
+
 		m_real_velocity = MoveAndSlideWithSnap(m_velocity + Vector3.Up * m_gravity, m_snap, Vector3.Up);
 	}
 

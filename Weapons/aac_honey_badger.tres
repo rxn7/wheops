@@ -1,6 +1,6 @@
 [gd_resource type="Resource" load_steps=3 format=2]
 
-[ext_resource path="res://Scripts/WeaponData.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/Weapon System/WeaponData.cs" type="Script" id=1]
 [ext_resource path="res://Sounds/aac_honey_badger.wav" type="AudioStream" id=2]
 
 [resource]
@@ -9,7 +9,7 @@ m_name = "AAC Honey Badger"
 m_fire_rate = 0.077
 m_move_speed_multiplier = 0.9
 m_reload_time = 2.5
-m_draw_time = 0.6
+m_draw_time = 0.7
 m_aim_fov = 50.0
 m_aim_speed = 10.0
 m_aim_move_speed_multiplier = 0.8
