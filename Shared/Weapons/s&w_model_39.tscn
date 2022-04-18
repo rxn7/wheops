@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Scripts/Weapon System/Weapon.cs" type="Script" id=1]
+[ext_resource path="res://Models/S&W Model 39/s&w model 39.glb" type="PackedScene" id=2]
+
+[node name="S&W Model 39" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="S&W Model 39" parent="." instance=ExtResource( 2 )]
+transform = Transform( 0.03, 5.27911e-16, -7.45058e-10, -1.94289e-17, 0.03, -9.31323e-11, 7.45058e-10, 9.31322e-11, 0.03, 2.81176e-10, 0.0377374, 0 )
+
+[node name="MuzzlePoint" type="Position3D" parent="."]
+transform = Transform( 0.03, 1.76618e-16, -7.45061e-10, 9.22688e-16, 0.03, -9.31316e-11, 7.45059e-10, 9.31315e-11, 0.03, -5.40721e-09, 0.0747481, -0.133768 )
+
+[editable path="S&W Model 39"]
