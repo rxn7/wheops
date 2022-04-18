@@ -16,8 +16,11 @@ public class DebugLabel : Label {
 	private async void UpdateLabelAsyncLoop() {
 		while(Visible) {
 			await Task.Delay(200);
-			Text = $"platform: {OS.GetName()}";
+			Text = "== PLATFORM  == ";
+			Text += $"\nplatform: {OS.GetName()}";
 			Text += $"\napi: {OS.GetCurrentVideoDriver()}";
+
+			Text += "\n\n== STATS ==";
 			Text += $"\nframe: {Performance.GetMonitor(Performance.Monitor.TimeProcess)}";
 			Text += $"\nfps: {Engine.GetFramesPerSecond()}";
 			Text += $"\nphy fps: {Engine.IterationsPerSecond}";
@@ -30,8 +33,9 @@ public class DebugLabel : Label {
 				Text += $"\ntotal alloc: {(OS.GetDynamicMemoryUsage() + OS.GetStaticMemoryUsage()) / 0xf4240} mb";
 			}
 
-			Text += $"\n\nstate: {Enum.GetName(typeof(PlayerBase.EState), Global.Instance.CurrentMap.Player.State)}";
-			Text += $"\nreal vel: {Global.Instance.CurrentMap.Player.m_real_velocity.Length()}";
+			Text += "\n\n== PLAYER  == ";
+			Text += $"\nstate: {Enum.GetName(typeof(PlayerBase.EState), Global.Instance.CurrentMap.Player.State)}";
+			Text += $"\nreal vel: {Global.Instance.CurrentMap.Player.RealVelocity.Length()}";
 		}
 	}
 

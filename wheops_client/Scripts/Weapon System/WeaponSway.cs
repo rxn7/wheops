@@ -9,9 +9,9 @@ public class WeaponSway : Position3D {
 	private float m_prev_x_rot;
 
 	public override void _Process(float dt) {
-		if(Global.Instance.CurrentMap.Player.m_weapon_mgr.m_held_weapon == null) return;
+		if(Global.Instance.CurrentMap.Player.WeaponManager.m_held_weapon == null) return;
 
-		float x = Global.Instance.CurrentMap.Player.m_head.RotationDegrees.x;
+		float x = Global.Instance.CurrentMap.Player.Head.RotationDegrees.x;
 		float dx = m_prev_x_rot - x;
 
 		float y = Global.Instance.CurrentMap.Player.RotationDegrees.y;
@@ -20,7 +20,7 @@ public class WeaponSway : Position3D {
 		if(dy < -180) dy += 360;
 		if(dy > 180) dy -= 360;
 
-		float amount = Global.Instance.CurrentMap.Player.m_weapon_mgr.m_held_weapon.Data.m_sway_amount;
+		float amount = Global.Instance.CurrentMap.Player.WeaponManager.m_held_weapon.Data.m_sway_amount;
 
 		if(Global.Instance.CurrentMap.Player.m_aiming) {
 			amount *= 0.2f;
@@ -37,7 +37,7 @@ public class WeaponSway : Position3D {
 
 	private void ApplySway(float dt) {
 		Transform t = Transform;
-		t.origin = t.origin.LinearInterpolate(m_target, Global.Instance.CurrentMap.Player.m_weapon_mgr.m_held_weapon.Data.m_sway_speed*dt);
+		t.origin = t.origin.LinearInterpolate(m_target, Global.Instance.CurrentMap.Player.WeaponManager.m_held_weapon.Data.m_sway_speed*dt);
 		Transform = t;
 	}
 }

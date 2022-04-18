@@ -1,13 +1,19 @@
 using Godot;
 
 public class Crosshair : Control {
-	public ColorRect top, bot, left, right;
+	public const float DEFAULT_GAP = 24;
+	public static readonly Color DEFAULT_COLOR = Color.Color8(20,240,20);
+
+	private ColorRect m_top, m_bot, m_left, m_right;
 
 	public override void _Ready() {
-		top = GetNode<ColorRect>("Top");
-		bot = GetNode<ColorRect>("Bot");
-		left = GetNode<ColorRect>("Left");
-		right = GetNode<ColorRect>("Right");
+		m_top = GetNode<ColorRect>("Top");
+		m_bot = GetNode<ColorRect>("Bot");
+		m_left = GetNode<ColorRect>("Left");
+		m_right = GetNode<ColorRect>("Right");
+
+		SetGap(Config.GetValue<float>("crosshair", "gap", DEFAULT_GAP));
+		SetColor(Config.GetValue<Color>("crosshair", "color", DEFAULT_COLOR));
 	}
 
 	private void Center() {

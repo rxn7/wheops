@@ -1,3 +1,4 @@
+using Godot;
 using System.Collections.Generic;
 
 public static class CommandManager {
@@ -12,6 +13,8 @@ public static class CommandManager {
 			{ "debug", 			CMD_Debug },
 			{ "connect", 			CMD_Connect },
 			{ "say", 			CMD_Say },
+			{ "ch_gap", 			CMD_CrosshairGap },
+			{ "ch_color", 			CMD_CrosshairColor },
 		};
 
 		Logger.Info("CommandManager initialized");
@@ -32,13 +35,15 @@ public static class CommandManager {
 	}
 
 	public static void CMD_Exit(string[] args) { 
-		Console.Instance.PrintWarning("closing the game!");
+		Logger.Info("Closing the game!");
 		Global.Instance.GetTree().Quit();
 	}
 
 	public static void CMD_Debug(string[] args) {
+		void PrintUsage() => Logger.Error("debug [on,off*]");
+
 		if(args.Length < 1) {
-			Console.Instance.PrintError("debug [on,off*]");
+			PrintUsage();
 		}
 
 		switch(args[0]) {
@@ -53,17 +58,19 @@ public static class CommandManager {
 				break;
 
 			default:
-				Logger.Error("debug [on,off*]");
+				PrintUsage();
 				break;
 		}
 	}
 
 	public static void CMD_Connect(string[] args) {
+		void PrintUsage() => Logger.Error("connect [nickname*] [ip*] [port]");
+
 		short port;
 		string ip, nickname;
 		
 		if(args.Length < 2) {
-			Logger.Error("connect [nickname*] [ip*] [port]");
+			PrintUsage();
 			return;
 		}
 
@@ -75,12 +82,65 @@ public static class CommandManager {
 			Logger.Error("Port not specified, using 26950 by default");
 		} else {
 			if(!short.TryParse(args[2], out port)) {
-				Logger.Error("connect [nickname*] [ip*] [port]");
+				PrintUsage();
 				return;
 			}
 		}
 
 		Logger.Info($"Trying to connect to {ip}:{port} as {nickname}...");
+	}
+
+	public static void CMD_CrosshairGap(string[] args) {
+		void PrintUsage() => Logger.Error("ch_gap [value*]");
+
+		if(args.Length < 1) {
+			PrintUsage();
+			return;
+		}
+
+		float gap;
+		if(args[0] == "default" || args[0] == "def") {
+			gap = Crosshair.DEFAULT_GAP;
+		} else if(!float.TryParse(args[0], out gap)) {
+			PrintUsage();
+			return;
+		}
+
+		Global.Instance.CurrentMap?.Player.Hud.m_crosshair.SetGap(gap);
+		Config.SetValue("crosshair", "gap", gap);
+	}
+
+	public static void CMD_CrosshairColor(string[] args) {
+		void PrintUsage() => Logger.Error("ch_color [r*] [g*] [b*]");
+
+		Color color;
+		if(args.Length == 1 && (args[0] == "def" || args[0] == "default")) {
+			color = Crosshair.DEFAULT_COLOR;
+		} else {
+			if(args.Length < 3) {
+				PrintUsage();
+				return;
+			}
+
+			byte r, g, b;
+			if(!byte.TryParse(args[0], out r)) {
+				PrintUsage();
+				return;
+			}
+			if(!byte.TryParse(args[1], out g)) {
+				PrintUsage();
+				return;
+			}
+			if(!byte.TryParse(args[2], out b)) {
+				PrintUsage();
+				return;
+			}
+
+			color = Color.Color8(r,g,b);
+		}
+
+		Global.Instance.CurrentMap?.Player?.Hud.m_crosshair.SetColor(color);
+		Config.SetValue("crosshair", "color", color);
 	}
 	
 	public static void CMD_Say(string[] args) {

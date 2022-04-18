@@ -106,7 +106,7 @@ public class WeaponManager : Node {
 		m_held_weapon?.QueueFree();
 
 		m_held_weapon = SpawnWeapon(idx);
-		Global.Instance.CurrentMap.Player.m_hud.UpdateWeaponInfoLabel();
+		Global.Instance.CurrentMap.Player.Hud.UpdateWeaponInfoLabel();
 	}
 
 	private Weapon SpawnWeapon(int idx) {
@@ -121,7 +121,7 @@ public class WeaponManager : Node {
 	private void Shoot() {
 		SpawnMuzzleFlash();
 		m_held_weapon.Shoot();
-		Global.Instance.CurrentMap.Player.m_hud.UpdateWeaponInfoLabel();
+		Global.Instance.CurrentMap.Player.Hud.UpdateWeaponInfoLabel();
 		m_last_shot = 0;
 	}
 
@@ -141,13 +141,13 @@ public class WeaponManager : Node {
 
 		m_reloading = true;
 		m_reload_timer = 0;
-		Global.Instance.CurrentMap.Player.m_hud.UpdateWeaponInfoLabel();
+		Global.Instance.CurrentMap.Player.Hud.UpdateWeaponInfoLabel();
 	}
 
 	private void FinishReload() {
 		m_reloading = false;
 		m_held_weapon.Reload();
 		SoundEffect.Spawn(this, RELOAD_SOUND, Random.RangeF(0.9f,1.1f));
-		Global.Instance.CurrentMap.Player.m_hud.UpdateWeaponInfoLabel();
+		Global.Instance.CurrentMap.Player.Hud.UpdateWeaponInfoLabel();
 	}
 }

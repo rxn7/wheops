@@ -10,12 +10,12 @@ public class HUD : CanvasLayer {
 	}
 
 	public void UpdateWeaponInfoLabel()  {
-		m_weapon_info_label.Text = Global.Instance.CurrentMap.Player.m_weapon_mgr.m_held_weapon.Data.m_name;
+		m_weapon_info_label.Text = Global.Instance.CurrentMap.Player.WeaponManager.m_held_weapon.Data.m_name;
 
-		if(Global.Instance.CurrentMap.Player.m_weapon_mgr.m_reloading) {
+		if(Global.Instance.CurrentMap.Player.WeaponManager.m_reloading) {
 			m_weapon_info_label.Text += "\nRELOADING...";
 		} else {
-			m_weapon_info_label.Text += $"\n{Global.Instance.CurrentMap.Player.m_weapon_mgr.m_held_weapon.m_ammo_left} / {Global.Instance.CurrentMap.Player.m_weapon_mgr.m_held_weapon.Data.m_ammo_cap}";
+			m_weapon_info_label.Text += $"\n{Global.Instance.CurrentMap.Player.WeaponManager.m_held_weapon.m_ammo_left} / {Global.Instance.CurrentMap.Player.WeaponManager.m_held_weapon.Data.m_ammo_cap}";
 		}
 	}
 }

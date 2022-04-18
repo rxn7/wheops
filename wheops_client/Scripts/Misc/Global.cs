@@ -10,6 +10,7 @@ public class Global : Node {
 
 	public override void _Ready() {
 		Random.Init();
+		Config.Init();
 		WeaponDB.Init();
 		CommandManager.Init();
 	}

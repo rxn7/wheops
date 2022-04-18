@@ -32,12 +32,12 @@ public class Player : PlayerBase {
 	public const float SLIDE_ACCEL = 1f;
 	public static readonly AudioStream FOOTSTEP_SOUND = GD.Load<AudioStream>("res://Sounds/footstep.wav");
 
-	public HUD m_hud;
-	public Position3D m_head;
-	public Position3D m_camera_holder;
-	public Camera m_camera;
-	public WeaponManager m_weapon_mgr;
-	public Vector3 m_real_velocity;
+	public HUD Hud { get; private set; }
+	public Position3D Head { get; private set; }
+	public Position3D CameraHolder { get; private set; }
+	public Camera Camera { get; private set; }
+	public WeaponManager WeaponManager { get; private set; }
+	public Vector3 RealVelocity { get; private set; }
 
 	private Position3D m_viewmodel_bobber, m_viewmodel_holder;
 	private CollisionShape m_shape;
@@ -63,27 +63,23 @@ public class Player : PlayerBase {
 	private Vector3 m_direction;
 	private Vector3 m_bob;
 
-	public float Speed() => (m_velocity + Vector3.Up * m_gravity).Length();
-
 	public override void _Ready() {
-		m_hud = GetNode<HUD>("HUD");
+		Hud = GetNode<HUD>("HUD");
 		m_slide_player = GetNode<AudioStreamPlayer>("SlidePlayer");
-		m_head = GetNode<Position3D>("Head");
+		Head = GetNode<Position3D>("Head");
 		m_shape = GetNode<CollisionShape>("CollisionShape");
-		m_head_bonker_raycast = m_head.GetNode<RayCast>("Bonker");
-		m_camera_holder = m_head.GetNode<Position3D>("CameraHolder");
-		m_camera_holder.SetAsToplevel(true);
-		m_camera = m_camera_holder.GetNode<Camera>("Camera");
-		m_weapon_sway = m_camera.GetNode<WeaponSway>("WeaponSway");
+		m_head_bonker_raycast = Head.GetNode<RayCast>("Bonker");
+		CameraHolder = Head.GetNode<Position3D>("CameraHolder");
+		CameraHolder.SetAsToplevel(true);
+		Camera = CameraHolder.GetNode<Camera>("Camera");
+		m_weapon_sway = Camera.GetNode<WeaponSway>("WeaponSway");
 		m_viewmodel_bobber = m_weapon_sway.GetNode<Position3D>("ViewmodelBobber");
 		m_viewmodel_holder = m_viewmodel_bobber.GetNode<Position3D>("ViewmodelHolder");
-		m_weapon_mgr = m_viewmodel_holder.GetNode<WeaponManager>("WeaponManager");
+		WeaponManager = m_viewmodel_holder.GetNode<WeaponManager>("WeaponManager");
 
 		Input.SetMouseMode(Input.MouseMode.Captured);
 
-		m_hud.m_crosshair.SetGap(24);
-		m_hud.m_crosshair.SetColor(Color.Color8(20,240,20));
-		m_weapon_mgr.QueueWeaponChange(0);
+		WeaponManager.QueueWeaponChange(0);
 	}
 
 	public override void _Process(float dt) {
@@ -104,9 +100,9 @@ public class Player : PlayerBase {
 		HandleFOV(dt);
 		HandleSlidePlayer();
 
-		m_camera_holder.RotationDegrees = new Vector3(Mathf.Clamp(m_head.RotationDegrees.x + m_recoil.x, -89, 89), RotationDegrees.y + m_recoil.y, Mathf.Lerp(m_camera_holder.RotationDegrees.z, m_camera_tilt, BOB_LERP_WEIGHT*dt));
+		CameraHolder.RotationDegrees = new Vector3(Mathf.Clamp(Head.RotationDegrees.x + m_recoil.x, -89, 89), RotationDegrees.y + m_recoil.y, Mathf.Lerp(CameraHolder.RotationDegrees.z, m_camera_tilt, BOB_LERP_WEIGHT*dt));
 
-		m_hud.m_crosshair.Visible = !m_aiming && !Console.Instance.IsActive();
+		Hud.m_crosshair.Visible = !m_aiming && !Console.Instance.IsActive();
 	}
 
 	public override void _PhysicsProcess(float dt) {
@@ -117,9 +113,9 @@ public class Player : PlayerBase {
 		if(Console.Instance.IsActive()) return;
 
 		if(e is InputEventMouseMotion mouse_motion_e) {
-			m_head.RotateX(Mathf.Deg2Rad(-mouse_motion_e.Relative.y * m_mouse_sensitivity)); Vector3 head_r = m_head.RotationDegrees;
+			Head.RotateX(Mathf.Deg2Rad(-mouse_motion_e.Relative.y * m_mouse_sensitivity)); Vector3 head_r = Head.RotationDegrees;
 			head_r.x = Mathf.Clamp(head_r.x, -89, 89);
-			m_head.RotationDegrees = head_r;
+			Head.RotationDegrees = head_r;
 			RotateY(Mathf.Deg2Rad(-mouse_motion_e.Relative.x * m_mouse_sensitivity));
 			Vector3 r = RotationDegrees;
 			while(r.y >= 180) r.y -= 180;
@@ -143,9 +139,9 @@ public class Player : PlayerBase {
 			if(Input.IsActionPressed("move_backward")) m_input += forward;
 
 			m_input.y = 0;
-			m_aiming = Input.IsActionPressed("aim") && m_weapon_mgr.m_draw_timer == 0 && !m_weapon_mgr.m_reloading;
+			m_aiming = Input.IsActionPressed("aim") && WeaponManager.m_draw_timer == 0 && !WeaponManager.m_reloading;
 
-			if(!m_aiming && !m_weapon_mgr.m_reloading && Input.IsActionPressed("run") && Input.IsActionPressed("move_forward") && IsOnFloor() && !m_weapon_mgr.WantsToShoot() && !m_weapon_mgr.HasJustShot() && m_weapon_mgr.m_draw_timer == 0) { 
+			if(!m_aiming && !WeaponManager.m_reloading && Input.IsActionPressed("run") && Input.IsActionPressed("move_forward") && IsOnFloor() && !WeaponManager.WantsToShoot() && !WeaponManager.HasJustShot() && WeaponManager.m_draw_timer == 0) { 
 				if(m_run_timer > FASTRUN_RUN_TIME_THRESHOLD){ 
 					State = EState.FastRunning;
 					m_target_speed = FASTRUN_SPEED;
@@ -159,7 +155,7 @@ public class Player : PlayerBase {
 			}
 
 			if(Input.IsActionPressed("crouch") && IsOnFloor()) {
-				if(m_real_velocity.Length() > CROUCH_SPEED*1.3f && (Input.IsActionPressed("run") && m_run_timer > FASTRUN_RUN_TIME_THRESHOLD)) {
+				if(RealVelocity.Length() > CROUCH_SPEED*1.3f && (Input.IsActionPressed("run") && m_run_timer > FASTRUN_RUN_TIME_THRESHOLD)) {
 					State = EState.Sliding;
 					m_target_speed = CROUCH_SPEED;
 				} else {
@@ -176,26 +172,26 @@ public class Player : PlayerBase {
 			m_run_timer = 0;
 		}
 
-		if(State == EState.FastRunning && m_real_velocity.Length() <= FASTRUN_VELOCITY_THRESHOLD) {
+		if(State == EState.FastRunning && RealVelocity.Length() <= FASTRUN_VELOCITY_THRESHOLD) {
 			State = EState.Running;
 			m_run_timer = 0;
 		}
 
-		m_target_speed *= m_weapon_mgr.m_held_weapon != null ? m_weapon_mgr.m_held_weapon.Data.m_move_speed_multiplier : 1;
+		m_target_speed *= WeaponManager.m_held_weapon != null ? WeaponManager.m_held_weapon.Data.m_move_speed_multiplier : 1;
 	}
 
 	private void SmoothHeadMovement(float dt) {
-		Transform t = m_camera_holder.GlobalTransform;
+		Transform t = CameraHolder.GlobalTransform;
 		if(Engine.GetFramesPerSecond() > Engine.IterationsPerSecond) {
 			Vector3 interval = m_velocity / Engine.GetFramesPerSecond();
-			Vector3 position = m_head.GlobalTransform.origin + interval;
+			Vector3 position = Head.GlobalTransform.origin + interval;
 
 			t.origin = t.origin.LinearInterpolate(position, HEAD_LERP_WEIGHT*dt);
 		} else {
-			t.origin = m_head.GlobalTransform.origin;
+			t.origin = Head.GlobalTransform.origin;
 		}
 
-		m_camera_holder.GlobalTransform = t;
+		CameraHolder.GlobalTransform = t;
 	}
 
 	private void CalculateBob() {
@@ -208,7 +204,7 @@ public class Player : PlayerBase {
 			float amplitude_mul = 1;
 			if(m_aiming) amplitude_mul = 0.2f;
 
-			if(m_real_velocity.Length() > BOB_VELOCITY_THRESHOLD) {
+			if(RealVelocity.Length() > BOB_VELOCITY_THRESHOLD) {
 				m_bob.y = Mathf.Sin(m_bob_timer * BOB_FREQUENCY * multiplier) * multiplier * amplitude_mul;
 				m_camera_tilt = m_bob.y;
 				m_bob.x = Mathf.Cos(m_bob_timer * BOB_FREQUENCY * 0.5f * multiplier) * 2 * multiplier * amplitude_mul;
@@ -223,12 +219,12 @@ public class Player : PlayerBase {
 	}
 
 	private void ApplyHeadBob(float dt) {
-		Transform t = m_camera.Transform;
+		Transform t = Camera.Transform;
 
 		if(m_bob_timer > 0)	t.origin = t.origin.LinearInterpolate(m_bob * HEADBOB_AMPLITUDE, BOB_LERP_WEIGHT*dt);
 		else			t.origin = t.origin.LinearInterpolate(Vector3.Zero, BOB_RESET_LERP_WEIGHT*dt);
 
-		m_camera.Transform = t;
+		Camera.Transform = t;
 	}
 
 	private void ApplyViewmodelBob(float dt) {
@@ -241,17 +237,17 @@ public class Player : PlayerBase {
 	}
 
 	private void PlayFootstep() {
-		SoundEffect.Spawn3D(this, GlobalTransform.origin + new Vector3(0, -1, 0), FOOTSTEP_SOUND, Random.RangeF(0.7f, 1.3f));
+		SoundEffect.Spawn(this, FOOTSTEP_SOUND, Random.RangeF(0.7f, 1.3f), RealVelocity.Length() - 20);
 	}
 
 	private void ApplyViewmodelConfig(float dt) {
-		if(m_weapon_mgr.m_reloading) {
+		if(WeaponManager.m_reloading) {
 			m_viewmodel_config = ViewmodelConfiguration.ReloadConfiguration;
 		} else if(m_aiming) {
 			m_viewmodel_config = ViewmodelConfiguration.AimConfiguration;
-		}else if(m_weapon_mgr.WantsToShoot() || m_weapon_mgr.HasJustShot()) {
+		}else if(WeaponManager.WantsToShoot() || WeaponManager.HasJustShot()) {
 			m_viewmodel_config = ViewmodelConfiguration.ShootConfiguration;
-		} else if(m_weapon_mgr.m_held_weapon != null && m_weapon_mgr.m_draw_timer > WeaponDB.Weapons[m_weapon_mgr.m_queued_weapon].m_draw_time * 0.5f) {
+		} else if(WeaponManager.m_held_weapon != null && WeaponManager.m_draw_timer > WeaponDB.Weapons[WeaponManager.m_queued_weapon].m_draw_time * 0.5f) {
 			m_viewmodel_config = ViewmodelConfiguration.DrawConfiguration;
 		} else if(State == EState.Running) {
 			m_viewmodel_config = ViewmodelConfiguration.RunConfiguration;
@@ -266,12 +262,12 @@ public class Player : PlayerBase {
 		Transform t = m_viewmodel_holder.Transform;
 
 		if(m_viewmodel_config == ViewmodelConfiguration.DrawConfiguration) {
-			float f = 10 / m_weapon_mgr.m_held_weapon.Data.m_draw_time * dt;
+			float f = 10 / WeaponManager.m_held_weapon.Data.m_draw_time * dt;
 			t.origin = t.origin.LinearInterpolate(m_viewmodel_config.m_position, f);
 			m_viewmodel_holder.RotationDegrees = m_viewmodel_holder.RotationDegrees.LinearInterpolate(m_viewmodel_config.m_rotation, f);
 		} else {
-			if(m_weapon_mgr.m_draw_timer > 0) {
-				float f = 10 / m_weapon_mgr.m_held_weapon.Data.m_draw_time * dt;
+			if(WeaponManager.m_draw_timer > 0) {
+				float f = 10 / WeaponManager.m_held_weapon.Data.m_draw_time * dt;
 				t.origin = t.origin.LinearInterpolate(m_viewmodel_config.m_position, f);
 				m_viewmodel_holder.RotationDegrees = m_viewmodel_holder.RotationDegrees.LinearInterpolate(m_viewmodel_config.m_rotation, f);
 			} else {
@@ -284,9 +280,9 @@ public class Player : PlayerBase {
 	}
 
 	private void ApplyRecoil(float dt) {
-		if(m_weapon_mgr.m_held_weapon == null) return;
+		if(WeaponManager.m_held_weapon == null) return;
 
-		m_target_recoil = m_target_recoil.LinearInterpolate(Vector3.Zero, m_weapon_mgr.m_held_weapon.Data.m_camera_recoil_relax_speed*dt);
+		m_target_recoil = m_target_recoil.LinearInterpolate(Vector3.Zero, WeaponManager.m_held_weapon.Data.m_camera_recoil_relax_speed*dt);
 		m_recoil = m_recoil.LinearInterpolate(m_target_recoil, 10*dt);
 	}
 
@@ -295,7 +291,7 @@ public class Player : PlayerBase {
 		if(m_aiming) mul *= 0.7f;
 
 		// Make one tapping more accurate
-		if(m_weapon_mgr.m_held_weapon.Data.m_fire_type == EFireType.Automatic && m_weapon_mgr.m_last_shot >= m_weapon_mgr.m_held_weapon.Data.m_fire_rate*2f) mul *= 0.7f;
+		if(WeaponManager.m_held_weapon.Data.m_fire_type == EFireType.Automatic && WeaponManager.m_last_shot >= WeaponManager.m_held_weapon.Data.m_fire_rate*2f) mul *= 0.7f;
 
 		m_target_recoil.x += x * mul;
 		m_target_recoil.y += y * mul;
@@ -316,9 +312,9 @@ public class Player : PlayerBase {
 
 	private void HandleFOV(float dt) {
 		if(m_aiming) {
-			m_camera.Fov = Mathf.Lerp(m_camera.Fov, m_weapon_mgr.m_held_weapon.Data.m_aim_fov, m_weapon_mgr.m_held_weapon.Data.m_aim_speed*dt);
+			Camera.Fov = Mathf.Lerp(Camera.Fov, WeaponManager.m_held_weapon.Data.m_aim_fov, WeaponManager.m_held_weapon.Data.m_aim_speed*dt);
 		} else {
-			m_camera.Fov = Mathf.Lerp(m_camera.Fov, DEFAULT_FOV, 10*dt);
+			Camera.Fov = Mathf.Lerp(Camera.Fov, DEFAULT_FOV, 10*dt);
 		}
 	}
 
@@ -346,7 +342,7 @@ public class Player : PlayerBase {
 		if(State == EState.Sliding) {
 			m_speed = Mathf.Lerp(m_speed, m_target_speed, SLIDE_SPEED_DECREASE*dt);
 		} else {
-			if(m_real_velocity.Length() > 0) {
+			if(RealVelocity.Length() > 0) {
 				m_speed = Mathf.Lerp(m_speed, m_target_speed, 10*dt);
 			} else {
 				m_speed = m_target_speed;
@@ -380,9 +376,9 @@ public class Player : PlayerBase {
 		}
 
 		m_velocity = m_direction * m_speed;
-		if(m_aiming) m_velocity *= m_weapon_mgr.m_held_weapon.Data.m_aim_move_speed_multiplier;
+		if(m_aiming) m_velocity *= WeaponManager.m_held_weapon.Data.m_aim_move_speed_multiplier;
 
-		m_real_velocity = MoveAndSlideWithSnap(m_velocity + Vector3.Up * m_gravity, m_snap, Vector3.Up);
+		RealVelocity = MoveAndSlideWithSnap(m_velocity + Vector3.Up * m_gravity, m_snap, Vector3.Up);
 	}
 
 	private void HandleSlidePlayer() {
