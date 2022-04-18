@@ -1,0 +1,3 @@
+is_global = true
+build_property.RootNamespace = Wheops
+build_property.ProjectDir = /home/rxn/dev/godot/wheops/wheops_client/

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "5N/lnTTdbXKr0sEl1eURO98vCh1QrDUeBKIscO/HmGuFeVnEgq/ZAKsRHnE8peZlQCGAp1VfgZIL8PPOd+GJLA==",
+  "success": true,
+  "projectFilePath": "/home/rxn/dev/godot/wheops/wheops_client/Wheops.csproj",
+  "expectedPackageFiles": [
+    "/home/rxn/.nuget/packages/microsoft.netframework.referenceassemblies/1.0.2/microsoft.netframework.referenceassemblies.1.0.2.nupkg.sha512",
+    "/home/rxn/.nuget/packages/microsoft.netframework.referenceassemblies.net472/1.0.2/microsoft.netframework.referenceassemblies.net472.1.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}
