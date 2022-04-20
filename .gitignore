@@ -1,4 +1,2 @@
-wheops_client/.mono
-wheops_client/.import
-wheops_server/.mono
-wheops_server/.import
+*/.mono
+*/.import

@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Models/AAC Honey Badger/AAC Honey Badger.glb" type="PackedScene" id=1]
+[ext_resource path="res://Scripts/Weapon System/Weapon.cs" type="Script" id=2]
+
+[node name="AACHoneyBadger" type="Spatial"]
+script = ExtResource( 2 )
+DataID = 1
+
+[node name="AACHoneyBadger" parent="." instance=ExtResource( 1 )]
+transform = Transform( 0.1, 1.11025e-17, 0, 4.44089e-16, 0.1, -2.22045e-16, -2.11758e-22, 0, 0.1, 0, 0.004, 0 )
+
+[node name="Skeleton" parent="AACHoneyBadger/Armature" index="0"]
+transform = Transform( 1, 1.24345e-14, -2.84217e-14, 3.55271e-15, 1, 4.23516e-22, 2.9976e-14, -7.10543e-15, 1, 0.063612, -0.00324154, 0.0143239 )
+
+[node name="Mesh" parent="AACHoneyBadger/Armature/Skeleton" index="0"]
+layers = 4
+
+[node name="MuzzlePoint" type="Position3D" parent="."]
+transform = Transform( 0.1, 3.3307e-17, 0, 1.5099e-15, 0.1, -2.22045e-16, -1.55176e-22, 5.32907e-16, 0.1, -1.6123e-08, 0.0444547, -0.27606 )
+
+[editable path="AACHoneyBadger"]

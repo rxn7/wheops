@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/s&w model 39.wav-49b3f71bbbc7146d56a82bab824fd442.sample"
+
+[deps]
+
+source_file="res://Weapons/Sounds/s&w model 39.wav"
+dest_files=[ "res://.import/s&w model 39.wav-49b3f71bbbc7146d56a82bab824fd442.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0
