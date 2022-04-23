@@ -8,7 +8,7 @@
 script = ExtResource( 1 )
 Scene = ExtResource( 2 )
 Name = "S&W Model 39"
-FireRate = 0.3
+FireRate = 0.15
 AmmoCap = 8
 ReloadTime = 1.0
 DrawTime = 0.3

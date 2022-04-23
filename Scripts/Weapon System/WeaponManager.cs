@@ -17,10 +17,21 @@ public class WeaponManager : Spatial {
 	public bool WillShoot=> CanShoot && WantsToShoot;
 	public bool HasJustShot => DrawTimer == 0 && LastShot <= HeldWeapon?.Data.FireRate * 1.2f;
 
+	[Export(PropertyHint.Layers3dPhysics)] private uint m_ShootRaycastMask = 0;
+	private Loadout m_Loadout;
 	private float m_ReloadTimer, m_ShootTimer;
+
+	public Loadout Loadout {
+		get => m_Loadout;
+		set {
+			m_Loadout = value;
+			QueueWeaponChange(0);
+		}
+	}
 
 	public override void _Ready() {
 		HeldWeapon = null;
+		Loadout = new Loadout(this, 0, 1);
 	}
 
 	public override void _Process(float dt) {
@@ -32,13 +43,13 @@ public class WeaponManager : Spatial {
 		HandlePickup(dt);
 		HandleReloading(dt);
 		HandleShooting(dt);
-		TakeInput();
+		TakeInput(); 
 	}
 
 	public override void _Input(InputEvent e) {
 		if(e.IsActionPressed("weapon_up")) {
 			QueueWeaponChange(QueuedWeaponID+1);
-		}  else if(e.IsActionPressed("weapon_down")) {
+		} else if(e.IsActionPressed("weapon_down")) {
 			QueueWeaponChange(QueuedWeaponID-1);
 		}
 	}
@@ -62,7 +73,7 @@ public class WeaponManager : Spatial {
 				} else if(Input.IsActionJustPressed("fire")) {
 					m_ShootTimer = 0;
 					LastShot = 0;
-					SoundEffect.Spawn(this, DRYFIRE_SOUND, Random.RangeF(0.8f,1.2f));	
+					SoundEffect.Spawn(DRYFIRE_SOUND, Random.RangeF(0.8f,1.2f));	
 				}
 			}
 		} 
@@ -86,7 +97,7 @@ public class WeaponManager : Spatial {
 			StartReload();
 		}
 
-		for(int i=0; i<9; ++i) {
+		for(int i=0; i<m_Loadout.Weapons.Length && i<9; ++i) {
 			if(Input.IsActionJustPressed($"weapon{i}")) {
 				QueueWeaponChange(i);
 			}
@@ -94,7 +105,7 @@ public class WeaponManager : Spatial {
 	}
 
 	public void QueueWeaponChange(int idx) {
-		if(WeaponDB.Weapons.Length <= idx || idx < 0) return;
+		if(Loadout.Weapons.Length <= idx || idx < 0) return;
 		if(idx == QueuedWeaponID) return;
 
 		QueuedWeaponID = idx;
@@ -104,22 +115,16 @@ public class WeaponManager : Spatial {
 	}
 
 	private void ChangeWeapon(int idx) {
-		if(WeaponDB.Weapons.Length <= idx || idx < 0) return;
-		if(idx == HeldWeapon?.DataID) return;
+		if(Loadout.Weapons.Length <= idx || idx < 0) return;
+		if(idx == HeldWeapon?.Data.ID) return;
 
-		HeldWeapon?.QueueFree();
+		if(HeldWeapon != null) {
+			HeldWeapon.Visible = false;
+		}
 
-		HeldWeapon = SpawnWeapon(idx);
+		HeldWeapon = Loadout.Weapons[idx];
+		HeldWeapon.Visible = true;
 		Global.Player.Hud.UpdateWeaponInfoLabel();
-	}
-
-	private Weapon SpawnWeapon(int idx) {
-		if(WeaponDB.Weapons.Length <= idx || idx < 0) return null;
-
-		Weapon w = (Weapon)WeaponDB.Weapons[idx].Scene.Instance();
-		AddChild(w);
-
-		return w;
 	}
 
 	private void Shoot() {
@@ -134,7 +139,7 @@ public class WeaponManager : Spatial {
 		PhysicsDirectSpaceState space = PhysicsServer.SpaceGetDirectState(Global.Player.Camera.GetWorld().Space);
 		Vector3 start = Global.Player.Camera.GlobalTransform.origin; 
 		Vector3 end = start - Global.Player.Camera.GlobalTransform.basis.z * Global.Player.WeaponManager.HeldWeapon.Data.RaycastDistance;
-		Godot.Collections.Dictionary result = space.IntersectRay(start, end, new Godot.Collections.Array(Global.Player));
+		Godot.Collections.Dictionary result = space.IntersectRay(start, end, new Godot.Collections.Array(Global.Player), m_ShootRaycastMask, true, true);
 
 		if(result.Count > 0) {
 			Spatial collider = (Spatial)result["collider"];
@@ -145,7 +150,8 @@ public class WeaponManager : Spatial {
 
 			if(collider is RigidBody rigidbody) {
 				rigidbody.ApplyImpulse(position - collider.GlobalTransform.origin, end * HeldWeapon.Data.HitForce);
-				Global.SpawnMuzzleFlash(rigidbody, position);
+			} else if(collider is Target target) {
+				target.Hit(position, normal);
 			}
 
 			Global.SpawnBulletImpact(position, normal);
@@ -167,7 +173,7 @@ public class WeaponManager : Spatial {
 	private void FinishReload() {
 		IsReloading = false;
 		HeldWeapon.Reload();
-		SoundEffect.Spawn(this, RELOAD_SOUND, Random.RangeF(0.9f,1.1f));
+		SoundEffect.Spawn(RELOAD_SOUND, Random.RangeF(0.9f,1.1f));
 		Global.Player.Hud.UpdateWeaponInfoLabel();
 	}
 }

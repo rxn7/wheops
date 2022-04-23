@@ -20,7 +20,8 @@ config/icon="res://icon.png"
 
 Console="*res://Scenes/Console.tscn"
 DebugLabel="*res://Scenes/DebugLabel.tscn"
-Global="*res://Scripts/Misc/Global.cs"
+Global="*res://Scripts/Global.cs"
+NetworkManager="*res://Scripts/Networking/NetworkManager.cs"
 
 [display]
 
@@ -200,10 +201,9 @@ toggle_console={
 3d_render/layer_1="World"
 3d_render/layer_2="Player"
 3d_render/layer_3="Viewmodel"
-
-[mono]
-
-profiler/enabled=true
+3d_physics/layer_1="World"
+3d_physics/layer_2="Player"
+3d_physics/layer_3="Target"
 
 [physics]
 

@@ -34,7 +34,7 @@ public class DebugLabel : Label {
 			}
 
 			Text += "\n\n== PLAYER  == ";
-			Text += $"\nstate: {Enum.GetName(typeof(HumanBase.EState), Global.Player.State)}";
+			Text += $"\nstate: {Enum.GetName(typeof(HumanBase.EHumanState), Global.Player.State)}";
 			Text += $"\nvel: {Global.Player.RealVelocity.Length()}";
 			Text += $"\naiming: {Global.Player.IsAiming}";
 			Text += $"\nfully aiming: {Global.Player.IsFullyAiming}";
@@ -43,12 +43,16 @@ public class DebugLabel : Label {
 		}
 	}
 
-	public new void Hide() {
-		Visible = false;
+	public static new void Hide() {
+		if(Instance != null) {
+			Instance.Visible = false;
+		}
 	}
 
-	public new void Show() {
-		Visible = true;
-		UpdateLabelAsyncLoop();
+	public static new void Show() {
+		if(Instance != null) {
+			Instance.Visible = true;
+			Instance.UpdateLabelAsyncLoop();
+		}
 	}
 }

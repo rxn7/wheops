@@ -51,11 +51,7 @@ public class Console : Control {
 		string command = args[0].ToLower();
 		args = args.Skip(1).ToArray();
 
-		if(CommandManager.CommandHandlers.ContainsKey(command)) {
-			CommandManager.CommandHandlers[command](args);
-		} else {
-			Logger.Error($"command '{command}' not found.");
-		}
+		CommandManager.Exeucte(command, args);
 
 		//m_output.AppendBbcode("\n");
 	}

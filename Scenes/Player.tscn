@@ -16,6 +16,7 @@ radius = 0.4
 height = 1.8
 
 [node name="Player" type="KinematicBody"]
+collision_layer = 2
 collision/safe_margin = 0.005
 script = ExtResource( 1 )
 
@@ -102,5 +103,4 @@ transform = Transform( 1, -7.45058e-09, 2.98023e-08, 7.45058e-09, 1, -1.11759e-0
 [node name="WeaponManager" type="Spatial" parent="Head/CameraHolder/CameraRecoil/Camera/ViewmodelSway/ViewmodelOffset/ViewmodelHolder"]
 transform = Transform( 1, 0, -8.9407e-08, 4.47035e-08, 1, 3.72529e-08, 2.98023e-08, -3.72529e-08, 1, -4.76837e-07, 0, -9.53674e-07 )
 script = ExtResource( 6 )
-
-[node name="Spatial" type="Spatial" parent="Head/CameraHolder/CameraRecoil/Camera/ViewmodelSway/ViewmodelOffset/ViewmodelHolder"]
+m_ShootRaycastMask = 5

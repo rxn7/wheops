@@ -1,23 +1,32 @@
 using Godot;
 
 public class Weapon : Spatial {
-	[Export] public int DataID { get; private set; }
 	public Position3D MuzzlePoint { get; private set; }
 	public uint AmmoLeft { get; private set; }
-	public WeaponData Data { get; private set; }
+	public int LoadoutIdx { get; set; }
+	
+	private WeaponData m_Data;
+	public WeaponData Data { 
+		get { return m_Data; }
+
+		set {
+			m_Data = value;
+			AmmoLeft = m_Data.AmmoCap;
+		}
+	}
 
 	private Vector3 m_RecoilPosition;
 	private Vector3 m_RecoilRotation;
 	private Vector3 m_StartPosition;
 
 	public override void _Ready() {
-		Data = WeaponDB.Weapons[DataID];
 		MuzzlePoint = GetNode<Position3D>("MuzzlePoint");
 		m_StartPosition = Transform.origin;
-		AmmoLeft = Data.AmmoCap;
 	}
 
 	public override void _Process(float dt) {
+		if(Data == null) return;
+
 		CalculateRecoil(dt);
 		ApplyRecoil(dt);
 	}
@@ -36,7 +45,7 @@ public class Weapon : Spatial {
 
 	public void Shoot() {
 		--AmmoLeft;
-		SoundEffect.Spawn(Global.Instance, Data.ShootSound, Random.RangeF(0.95f, 1.05f));
+		SoundEffect.Spawn(Data.ShootSound, Random.RangeF(0.95f, 1.05f));
 
 		float mul_y = Random.RangeF(0.8f, 1.2f) * Random.Sign();
 		float mul = 1;

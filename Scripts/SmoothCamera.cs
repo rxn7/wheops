@@ -26,7 +26,6 @@ public class SmoothCamera : Position3D {
 		GlobalTransform = m_PrevTransform.InterpolateWith(m_CurrentTransform, f);
 
 		Transform t = GlobalTransform;
-		t.origin += Global.Player.BreathingAnimation * 5;
 		GlobalTransform = t;
 
 		Vector3 rotation = Global.Player.Head.RotationDegrees + Global.Player.RotationDegrees + Global.Player.CameraRecoil.RotationDegrees;

@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Models/target.glb" type="PackedScene" id=1]
+[ext_resource path="res://Scripts/Weapon System/Target.cs" type="Script" id=2]
+
+[sub_resource type="CylinderShape" id=1]
+height = 0.05
+
+[sub_resource type="CylinderShape" id=2]
+height = 0.12
+
+[node name="Target" type="Area"]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+script = ExtResource( 2 )
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0.0379 )
+shape = SubResource( 1 )
+
+[node name="StaticBody" type="StaticBody" parent="."]
+collision_mask = 2
+
+[node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
+transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
+shape = SubResource( 2 )
+
+[node name="target" parent="." instance=ExtResource( 1 )]

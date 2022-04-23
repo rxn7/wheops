@@ -1,9 +1,9 @@
 using Godot;
 
 public class Crosshair : Control {
-	public const float DEFAULT_GAP = 24;
+	public const float DEFAULT_GAP = 8;
 	public const float DEFAULT_LENGTH = 10;
-	public const float DEFAULT_WIDTH = 2;
+	public const float DEFAULT_WIDTH = 4;
 	public static readonly Color DEFAULT_COLOR = Color.Color8(20,240,20);
 
 	private ColorRect m_Top, m_Bot, m_Left, m_Right;

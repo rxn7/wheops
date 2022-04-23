@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Scripts/Weapon System/Weapon.cs" type="Script" id=1]
+[ext_resource path="res://Weapons/Models/Desert Eagle/Desert Eagle.glb" type="PackedScene" id=2]
+
+[node name="Desert Eagle" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="Desert Eagle" parent="." instance=ExtResource( 2 )]
+transform = Transform( -2.62268e-09, 0, 0.06, 0, 0.06, 0, -0.06, 0, -2.62268e-09, 0, 0.0774243, 0.00491853 )
+
+[node name="Mesh" parent="Desert Eagle" index="0"]
+transform = Transform( 1, 0, 3.90799e-14, 0, 1, 0, -3.90799e-14, 0, 1, 0, 0, 0 )
+
+[node name="MuzzlePoint" type="Position3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0721241, -0.141436 )
+
+[editable path="Desert Eagle"]
