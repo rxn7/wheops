@@ -33,4 +33,18 @@ public class ServerPacketHandler {
 
 		m_Server.Sender.ChatMessage(peer.Id, msg);
 	}
+
+	public void InputHandler(NetPeer peer, NetPacketReader reader) {
+		int id = peer.Id;
+
+		Vector3 movement = reader.GetVector3();				
+		bool jump = reader.GetBool();
+		bool crouch = reader.GetBool();
+		bool run = reader.GetBool();
+		bool shoot = reader.GetBool();
+
+		if(NetworkManager.NetworkPlayers.Keys.Contains(id)) {
+			NetworkPlayer player = NetworkManager.NetworkPlayers[id];
+		}
+	}
 }

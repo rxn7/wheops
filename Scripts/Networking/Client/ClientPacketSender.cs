@@ -27,7 +27,16 @@ public class ClientPacketSender : PacketSender {
 	public void ChatMessage(string msg) {
 		InitializePacket((byte)PacketFromClient.ChatMessage);
 		m_Writer.Put(msg);
-
 		SendToServer(DeliveryMethod.ReliableOrdered);
+	}
+
+	public void Input(Vector3 movement, bool jump, bool crouch, bool run, bool shoot) {
+		InitializePacket((byte)PacketFromClient.Input);
+		m_Writer.Put(movement);
+		m_Writer.Put(jump);
+		m_Writer.Put(crouch);
+		m_Writer.Put(run);
+		m_Writer.Put(shoot);
+		SendToServer(DeliveryMethod.ReliableUnordered);
 	}
 }

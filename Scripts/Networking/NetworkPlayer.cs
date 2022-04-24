@@ -5,6 +5,7 @@ public class NetworkPlayer : HumanBase {
 	public static readonly PackedScene SCENE = GD.Load<PackedScene>("res://Scenes/NetworkPlayer.tscn");
 
 	public NetworkPlayerData NetworkData { get; private set; }
+	private NetworkPlayerInput m_Input = null;
 
 	public new Vector2 Rotation {
 		get {
@@ -14,10 +15,15 @@ public class NetworkPlayer : HumanBase {
 			RotationDegrees = new Vector3(0, value.y, 0);
 		}
 	}
+
 	public Vector3 Position => GlobalTransform.origin;
 
 	public override void _Ready() {
 		base._Ready();
+
+		if(NetworkManager.IsHost) {
+			m_Input = new NetworkPlayerInput();
+		}
 		
 		m_ViewmodelHolder = Head.GetNode<Position3D>("ViewmodelHolder");
 		WeaponManager = m_ViewmodelHolder.GetNode<NetworkWeaponManager>("WeaponManager");
@@ -25,8 +31,5 @@ public class NetworkPlayer : HumanBase {
 
 	public void InitNetworkData(NetworkPlayerData data) {
 		NetworkData = data;
-	}
-
-	public void SetRotation(Vector2 rotation) {
 	}
 }

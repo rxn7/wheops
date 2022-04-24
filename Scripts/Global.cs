@@ -100,7 +100,7 @@ public class Global : Node {
 		t.origin = position;
 		network_player.GlobalTransform = t;
 
-		network_player.SetRotation(rotation);
+		network_player.Rotation = rotation;
 
 		NetworkManager.NetworkPlayers.Add(data.ID, network_player);
 	}
