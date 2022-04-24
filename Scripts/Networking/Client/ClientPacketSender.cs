@@ -43,7 +43,7 @@ public class ClientPacketSender : PacketSender {
 	*/
 
 	public void PlayerTransform() {
-		InitializePacket((byte)PacketFromServer.PlayerTransfrom);
+		InitializePacket((byte)PacketFromClient.PlayerTransform);
 
 		Logger.Info("i came");
 
