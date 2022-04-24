@@ -1,7 +1,8 @@
 using Godot;
 
 public class Global : Node {
-	public const string VERSION = "pre demo 23.04.2022";
+	public const string VERSION = "pre demo 24.04.2022";
+	public const string NET_KEY = "Wheops " + VERSION;
 
 	public static readonly PackedScene MUZZLEFLASH_SCENE = GD.Load<PackedScene>("res://Particles/MuzzleFlashParticles.tscn");
 	public static readonly PackedScene BULLET_IMPACT_SCENE = GD.Load<PackedScene>("res://Particles/BulletImpact.tscn");
@@ -10,27 +11,34 @@ public class Global : Node {
 
 	public static Global Instance { get; private set; }
 	public static Map CurrentMap { get; private set; }
-	public static Player Player { get; set; }
+	public static LocalPlayer Player { get; set; }
+	public static string Nickname { get; set; }
 
 	public override void _EnterTree() {
 		Instance = this;
 	}
 
 	public override void _Ready() {
-		MaterialCache.LoadParticles(MUZZLEFLASH_SCENE);
-		MaterialCache.LoadParticles(BULLET_IMPACT_SCENE);
-
 		Random.Init();
 		Config.Init();
 		WeaponDB.Init();
 		CommandManager.Init();
+
+		MaterialCache.LoadParticles(MUZZLEFLASH_SCENE);
+		MaterialCache.LoadParticles(BULLET_IMPACT_SCENE);
+
+		Nickname = Config.GetValue<string>("profile", "nickname", "NoName");
 	}
 
-	public static void LoadMap(string name) {
+	public static bool LoadMap(string name) {
+		if(NetworkManager.Network is Server server) {
+			server.Sender.MapChange(name);
+		}
+
 		string path = $"res://Maps/{name}.tscn";
 		if(!ResourceLoader.Exists(path)) {
 			Logger.Error($"Map '{name}' doesn't exist!");
-			return;
+			return false;
 		}
 
 		if(CurrentMap != null) {
@@ -42,6 +50,8 @@ public class Global : Node {
 		PackedScene scene = GD.Load<PackedScene>($"res://Maps/{name}.tscn");
 		CurrentMap = (Map)scene.Instance();
 		Instance.AddChild(CurrentMap);
+
+		return true;
 	}
 
 	public static void SpawnMuzzleFlash(Spatial parent, Vector3 position) {
@@ -72,5 +82,26 @@ public class Global : Node {
 
 		popup.GlobalTranslate(position);
 		popup.Damage = damage;
+	}
+	
+	public static void SpawnNetworkPlayer(NetworkPlayerData data, Vector3 position, Vector2 rotation) {
+		Logger.Info($"Spawning player '{data.Nickname}' of id {data.ID}");
+
+		if(NetworkManager.NetworkPlayers.ContainsKey(data.ID)) {
+			Logger.Error($"Can't spawn network player with ID: {data.ID}");
+			return;
+		}
+
+		NetworkPlayer network_player = (NetworkPlayer)NetworkPlayer.SCENE.Instance();
+		network_player.InitNetworkData(data);
+		Instance.AddChild(network_player);
+
+		Transform t = network_player.GlobalTransform;
+		t.origin = position;
+		network_player.GlobalTransform = t;
+
+		network_player.SetRotation(rotation);
+
+		NetworkManager.NetworkPlayers.Add(data.ID, network_player);
 	}
 }

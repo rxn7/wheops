@@ -5,21 +5,26 @@ public static class CommandManager {
 	public static Dictionary<string, Command> Commands = new Dictionary<string, Command>();
 
 	public static void Init() {
-		Commands = new Dictionary<string, Command>() {
-			{ "exit",			new Command("exit", CMD_Exit, "Closes the game", null) },
-			{ "map",			new Command("map", CMD_Map, "Loads the specified map", new Command.Argument("name", false)) },
-			{ "clear",			new Command("clear", CMD_Clear, "Clears the console output", null) },
-			{ "list", 			new Command("list", CMD_List, "Lists all the available commnds", null) },
-			{ "debug", 			new Command("debug", CMD_Debug, "Toggles the debug visibility", null)  },
-			{ "ch_gap", 			new Command("ch_gap", CMD_CrosshairGap, "Sets the crosshair's gap", new Command.Argument("value", false, Crosshair.DEFAULT_GAP)) },
-			{ "ch_color", 			new Command("ch_color", CMD_CrosshairColor, "Sets the crosshair's color", new Command.Argument("red", false, 255), new Command.Argument("green", false, 255), new Command.Argument("blue", false, 255)) },
-			{ "ch_size", 			new Command("ch_size", CMD_CrosshairSize, "Sets the crosshair's length and width", new Command.Argument("length", false, Crosshair.DEFAULT_LENGTH), new Command.Argument("width", false, Crosshair.DEFAULT_WIDTH)) },
-			{ "sens", 			new Command("sens", CMD_MouseSensetivity, "Sets the mouse sensetivity", new Command.Argument("sens", false, Player.DEFAULT_MOUSE_SENS)) },
-			{ "host", 			new Command("host", CMD_Host, "Hosts a server", new Command.Argument("port", false, 26950)) },
-			{ "connect", 			new Command("connect", CMD_Connect, "Connects to a server", new Command.Argument("nickname", false, "NoName"), new Command.Argument("ip", false), new Command.Argument("port", false, 26950)) },
-		};
+		AddCommand(new Command("exit", CMD_Exit, "Closes the game", null));
+		AddCommand(new Command("map", CMD_Map, "Loads the specified map", new Command.Argument("map", false)));
+		AddCommand(new Command("clear", CMD_Clear, "Clears the console output", null));
+		AddCommand(new Command("list", CMD_List, "Lists all the available commnds", null));
+		AddCommand(new Command("debug", CMD_Debug, "Toggles the debug visibility", null) );
+		AddCommand(new Command("ch_gap", CMD_CrosshairGap, "Sets the crosshair's gap", new Command.Argument("value", false, Crosshair.DEFAULT_GAP)));
+		AddCommand(new Command("ch_color", CMD_CrosshairColor, "Sets the crosshair's color", new Command.Argument("red", false, 255), new Command.Argument("green", false, 255), new Command.Argument("blue", false, 255)));
+		AddCommand(new Command("ch_size", CMD_CrosshairSize, "Sets the crosshair's length and width", new Command.Argument("length", false, Crosshair.DEFAULT_LENGTH), new Command.Argument("width", false, Crosshair.DEFAULT_WIDTH)));
+		AddCommand(new Command("sens", CMD_MouseSensetivity, "Sets the mouse sensetivity", new Command.Argument("sens", false, LocalPlayer.DEFAULT_MOUSE_SENS)));
+		AddCommand(new Command("host", CMD_Host, "Hosts a server", new Command.Argument("port", true, (short)26950), new Command.Argument("max clients", true, (int)10)));
+		AddCommand(new Command("connect", CMD_Connect, "Connects to a server", new Command.Argument("ip", false), new Command.Argument("port", false, 26950)));
+		AddCommand(new Command("nick", CMD_Nick, "Sets your nickname", new Command.Argument("nickname", false, "NoName")));
+		AddCommand(new Command("disconnect", CMD_Disconnect, "Disconnects you from a server if joined to any"));
+		AddCommand(new Command("say", CMD_Say, "Send a chat message to the server", new Command.Argument("messge", false, "")));
 
 		Logger.Info("CommandManager initialized");
+	}
+
+	private static void AddCommand(Command cmd) {
+		Commands.Add(cmd.Name, cmd);
 	}
 
 	public static void Exeucte(string name, string[] args) {
@@ -66,31 +71,6 @@ public static class CommandManager {
 		} else {
 			DebugLabel.Show();
 		}
-
-		return true;
-	}
-
-	public static bool CMD_Connect(Command cmd, string[] args) {
-		short port;
-		string ip, nickname;
-
-		if(args.Length < 2) {
-			return false;
-		}
-
-		nickname = args[0];
-		ip = args[1];
-		
-		if(args.Length < 3) {
-			port = 26950;
-			Logger.Error("Port not specified, using 26950 by default");
-		} else {
-			if(!short.TryParse(args[2], out port)) {
-				return false;
-			}
-		}
-
-		Logger.Info($"Trying to connect to {ip}:{port} as {nickname}...");
 
 		return true;
 	}
@@ -162,7 +142,7 @@ public static class CommandManager {
 
 		float sens;
 		if(args[0] == "def" || args[0] == "default") {
-			sens = Player.DEFAULT_MOUSE_SENS;
+			sens = LocalPlayer.DEFAULT_MOUSE_SENS;
 		} else if(!float.TryParse(args[0], out sens)) {
 			return false;
 		}
@@ -178,6 +158,11 @@ public static class CommandManager {
 			return false;
 		}
 
+		if(!NetworkManager.IsHost) {
+			Logger.Error("Only host can change map!");
+			return false;
+		}
+
 		string map = args[0];
 		Global.LoadMap(map);
 
@@ -185,15 +170,71 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_Host(Command cmd, string[] args) {
-		if(args.Length > 1) {
+		if(args.Length > 2) {
 			return false;
 		}
 
 		short port;
-		if(args.Length == 0) {
+		if(args.Length < 1) port = (short)cmd.Arguments[0].DefaultValue;
+		else if(!short.TryParse(args[0], out port)) return false;
+
+		int max_clients;
+		if(args.Length < 2) max_clients = (int)cmd.Arguments[1].DefaultValue;
+		else if(!int.TryParse(args[1], out max_clients)) return false;
+
+		return NetworkManager.StartServer(port, max_clients);
+	}
+
+	public static bool CMD_Connect(Command cmd, string[] args) {
+		if(args.Length < 2) {
+			return false;
+		}
+
+		string ip = args[0];
+		short port;
+		
+		if(args.Length < 2) {
 			port = 26950;
+			Logger.Info("Port not specified, using 26950 by default");
 		} else {
-			if(!short.TryParse(args[0], out port)) return false;
+			if(!short.TryParse(args[1], out port)) {
+				return false;
+			}
+		}
+
+		return NetworkManager.StartClient(ip, port);
+	}
+
+	public static bool CMD_Disconnect(Command cmd, string[] args) {
+		NetworkManager.Disconnect();
+		return true;
+	}
+
+	public static bool CMD_Nick(Command cmd, string[] args) {
+		if(args.Length < 1) {
+			return false;
+		}
+
+		string nickname = args[0];
+		Config.SetValue("profile", "nickname", nickname);
+		Global.Nickname = nickname;
+
+		return true;
+	}
+
+	public static bool CMD_Say(Command cmd, string[] args) {
+		if(args.Length < 1) {
+			return false;
+		}
+
+		string message = string.Join(" ", args);
+		if(NetworkManager.Network is Server server) {
+			server.Sender.ChatMessage(-1, message);
+		} else if(NetworkManager.Network is Client client) {
+			client.Sender.ChatMessage(message);
+		} else {
+			Logger.Error("You need to be on a server to send a message");
+			return false;
 		}
 
 		return true;

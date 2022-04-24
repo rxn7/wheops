@@ -20,6 +20,13 @@ public class DebugLabel : Label {
 			Text += $"\nplatform: {OS.GetName()}";
 			Text += $"\napi: {OS.GetCurrentVideoDriver()}";
 
+
+			if(NetworkManager.IsNetworked) {
+				Text += "\n\n== NETWORK ==";
+				Text += $"\nping: {NetworkManager.Ping}";
+				Text += $"\nstate: {Enum.GetName(typeof(NetworkManager.ENetworkState), NetworkManager.State)}";
+			}
+
 			Text += "\n\n== STATS ==";
 			Text += $"\nframe: {Performance.GetMonitor(Performance.Monitor.TimeProcess)}";
 			Text += $"\nfps: {Engine.GetFramesPerSecond()}";
@@ -34,11 +41,11 @@ public class DebugLabel : Label {
 			}
 
 			Text += "\n\n== PLAYER  == ";
-			Text += $"\nstate: {Enum.GetName(typeof(HumanBase.EHumanState), Global.Player.State)}";
+			Text += $"\nstate: {Enum.GetName(typeof(EHumanState), Global.Player.State)}";
 			Text += $"\nvel: {Global.Player.RealVelocity.Length()}";
 			Text += $"\naiming: {Global.Player.IsAiming}";
 			Text += $"\nfully aiming: {Global.Player.IsFullyAiming}";
-			Text += $"\nheat timer: {Global.Player.WeaponManager.HeatTimer}";
+			Text += $"\nheat timer: {((LocalWeaponManager)Global.Player.WeaponManager).HeatTimer}";
 			Text += $"\nrun timer: {Global.Player.RunTimer}";
 		}
 	}

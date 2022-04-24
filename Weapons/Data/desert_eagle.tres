@@ -1,6 +1,6 @@
 [gd_resource type="Resource" load_steps=4 format=2]
 
-[ext_resource path="res://Scripts/Weapon System/WeaponData.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/WeaponSystem/WeaponData.cs" type="Script" id=1]
 [ext_resource path="res://Weapons/Scenes/desert_eagle.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Weapons/Sounds/desert_eagle.wav" type="AudioStream" id=3]
 

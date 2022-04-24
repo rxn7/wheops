@@ -205,6 +205,10 @@ toggle_console={
 3d_physics/layer_2="Player"
 3d_physics/layer_3="Target"
 
+[mono]
+
+profiler/args="log:calls,alloc,sample,output=output.mlpd,reports=monitor,traces"
+
 [physics]
 
 common/physics_fps=30

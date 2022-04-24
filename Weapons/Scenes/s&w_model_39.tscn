@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://Scripts/Weapon System/Weapon.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/WeaponSystem/Weapon.cs" type="Script" id=1]
 [ext_resource path="res://Weapons/Models/S&W Model 39/s&w model 39.glb" type="PackedScene" id=2]
 
 [node name="S&W Model 39" type="Spatial"]

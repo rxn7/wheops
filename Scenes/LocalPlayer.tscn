@@ -1,15 +1,15 @@
 [gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://Scripts/Player/Player.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/WeaponSystem/LocalWeaponManager.cs" type="Script" id=1]
 [ext_resource path="res://environment.tres" type="Environment" id=2]
-[ext_resource path="res://Scripts/UI/Crosshair.cs" type="Script" id=3]
-[ext_resource path="res://Scripts/UI/HUD.cs" type="Script" id=4]
-[ext_resource path="res://Fonts/Font_HUD.tres" type="DynamicFont" id=5]
-[ext_resource path="res://Scripts/Weapon System/WeaponManager.cs" type="Script" id=6]
-[ext_resource path="res://Scripts/Weapon System/CameraRecoil.cs" type="Script" id=7]
+[ext_resource path="res://Scripts/UI/HUD.cs" type="Script" id=3]
+[ext_resource path="res://Scripts/Player/LocalPlayer.cs" type="Script" id=4]
+[ext_resource path="res://Scripts/WeaponSystem/CameraRecoil.cs" type="Script" id=5]
+[ext_resource path="res://Scripts/UI/Crosshair.cs" type="Script" id=6]
+[ext_resource path="res://Sounds/slide_loop.wav" type="AudioStream" id=7]
 [ext_resource path="res://Scripts/SmoothCamera.cs" type="Script" id=8]
-[ext_resource path="res://Scripts/Weapon System/ViewmodelSway.cs" type="Script" id=9]
-[ext_resource path="res://Sounds/slide_loop.wav" type="AudioStream" id=13]
+[ext_resource path="res://Fonts/Font_HUD.tres" type="DynamicFont" id=9]
+[ext_resource path="res://Scripts/WeaponSystem/ViewmodelSway.cs" type="Script" id=10]
 
 [sub_resource type="CapsuleShape" id=1]
 radius = 0.4
@@ -18,14 +18,14 @@ height = 1.8
 [node name="Player" type="KinematicBody"]
 collision_layer = 2
 collision/safe_margin = 0.005
-script = ExtResource( 1 )
+script = ExtResource( 4 )
 
 [node name="CollisionShape" type="CollisionShape" parent="."]
 transform = Transform( 1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0 )
 shape = SubResource( 1 )
 
 [node name="HUD" type="CanvasLayer" parent="."]
-script = ExtResource( 4 )
+script = ExtResource( 3 )
 
 [node name="Crosshair" type="Control" parent="HUD"]
 anchor_left = 0.5
@@ -35,7 +35,7 @@ anchor_bottom = 0.5
 grow_horizontal = 0
 mouse_filter = 2
 input_pass_on_modal_close_click = false
-script = ExtResource( 3 )
+script = ExtResource( 6 )
 
 [node name="Top" type="ColorRect" parent="HUD/Crosshair"]
 mouse_filter = 2
@@ -61,14 +61,15 @@ anchor_bottom = 0.978
 margin_left = 0.255981
 margin_top = -0.200012
 margin_bottom = 0.199951
-custom_fonts/font = ExtResource( 5 )
+custom_fonts/font = ExtResource( 9 )
 text = "AKM
 30 / 30"
 align = 1
 valign = 2
 
-[node name="SlidePlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 13 )
+[node name="SlidePlayer" type="AudioStreamPlayer3D" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0 )
+stream = ExtResource( 7 )
 
 [node name="Head" type="Position3D" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0 )
@@ -83,7 +84,7 @@ debug_shape_thickness = 5
 script = ExtResource( 8 )
 
 [node name="CameraRecoil" type="Position3D" parent="Head/CameraHolder"]
-script = ExtResource( 7 )
+script = ExtResource( 5 )
 
 [node name="Camera" type="Camera" parent="Head/CameraHolder/CameraRecoil"]
 cull_mask = 1048573
@@ -92,7 +93,7 @@ current = true
 fov = 80.0
 
 [node name="ViewmodelSway" type="Position3D" parent="Head/CameraHolder/CameraRecoil/Camera"]
-script = ExtResource( 9 )
+script = ExtResource( 10 )
 
 [node name="ViewmodelOffset" type="Position3D" parent="Head/CameraHolder/CameraRecoil/Camera/ViewmodelSway"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.76837e-07 )
@@ -102,5 +103,5 @@ transform = Transform( 1, -7.45058e-09, 2.98023e-08, 7.45058e-09, 1, -1.11759e-0
 
 [node name="WeaponManager" type="Spatial" parent="Head/CameraHolder/CameraRecoil/Camera/ViewmodelSway/ViewmodelOffset/ViewmodelHolder"]
 transform = Transform( 1, 0, -8.9407e-08, 4.47035e-08, 1, 3.72529e-08, 2.98023e-08, -3.72529e-08, 1, -4.76837e-07, 0, -9.53674e-07 )
-script = ExtResource( 6 )
+script = ExtResource( 1 )
 m_ShootRaycastMask = 5

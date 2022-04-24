@@ -3,7 +3,7 @@ using System;
 
 public static class Config {
 	private static ConfigFile File;
-	public const string CONFIG_PATH = "user://config.ini";
+	private const string CONFIG_PATH = "user://config.ini";
 
 	public static void Init() {
 		LoadConfig();
@@ -11,7 +11,7 @@ public static class Config {
 		Logger.Info("Config initialized");
 	}
 
-	public static void LoadConfig() {
+	private static void LoadConfig() {
 		File = new ConfigFile();
 		Error status = File.Load(CONFIG_PATH);
 		if(status != Error.Ok) {
@@ -34,7 +34,7 @@ public static class Config {
 		return (T)val;
 	}
 
-	public static void WriteToFile() {
+	private static void WriteToFile() {
 		Error status = File.Save(CONFIG_PATH);
 		if(status != Error.Ok) {
 			Logger.Error($"Error saving config file: {Enum.GetName(typeof(Error), status)}");

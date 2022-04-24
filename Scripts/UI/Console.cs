@@ -8,6 +8,8 @@ public class Console : Control {
 	private LineEdit m_Input;
 	private RichTextLabel m_Output;
 
+	public static bool Active => Instance != null && Instance.Visible;
+
 	public override void _Ready() {
 		Instance = this;
 

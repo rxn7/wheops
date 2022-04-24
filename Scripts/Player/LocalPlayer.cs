@@ -1,15 +1,14 @@
 using Godot;
+using System;
 
-public class Player : HumanBase {
-	public static readonly PackedScene SCENE = GD.Load<PackedScene>("res://Scenes/Player.tscn");
-	public static readonly AudioStream FOOTSTEP_SOUND = GD.Load<AudioStream>("res://Sounds/footstep.wav");
+public class LocalPlayer : HumanBase {
+	public static readonly PackedScene SCENE = GD.Load<PackedScene>("res://Scenes/LocalPlayer.tscn");
 
 	public const float DEFAULT_MOUSE_SENS = 0.1f;
 	public const float HEAD_LERP_WEIGHT = 60; 
 	public const float RUN_SPEED = 10;
 	public const float FASTRUN_SPEED = 12; public const float FASTRUN_RUN_TIME_THRESHOLD = 1.5f;
-	public const float FASTRUN_VELOCITY_THRESHOLD = 7f;
-	public const float WALK_SPEED = 6;
+	public const float FASTRUN_VELOCITY_THRESHOLD = 7f; public const float WALK_SPEED = 6;
 	public const float CROUCH_SPEED = 3;
 	public const float GROUND_ACCEL = 15;
 	public const float AIR_ACCEL = 3;
@@ -30,34 +29,24 @@ public class Player : HumanBase {
 	public const float BREATHING_FREQUENCY = 2f;
 	public const float RUN_VELOCITY_THRESHOLD = 2f;
 
-	public static readonly HeightProperties CROUCH_HEIGHT_PROPERTIES = new HeightProperties(1f, 10f);
-	public static readonly HeightProperties SLIDE_HEIGHT_PROPERTIES = new HeightProperties(0.4f, 15f);
-	public static readonly HeightProperties WALK_HEIGHT_PROPERTIES = new HeightProperties(1.8f, 13f);
-
 	public RayCast ShootRaycast { get; private set; }
 	public HUD Hud { get; private set; }
-	public Position3D Head { get; private set; }
 	public SmoothCamera CameraHolder { get; private set; }
 	public CameraRecoil CameraRecoil { get; private set; }
 	public Camera Camera { get; private set; }
-	public WeaponManager WeaponManager { get; private set; }
 	public Vector3 RealVelocity { get; private set; }
 	public Vector3 BreathingAnimation { get; private set; }
-	public bool IsAiming { get; private set; }
-	public bool IsFullyAiming { get; private set; }
 	public float RunTimer { get; private set; }
 	public float CameraTilt { get; private set; } 
 	public float MouseSensetivity { get; set; }
+	public bool IsFullyAiming { get; private set; }
 
 	public bool HasLanded => IsOnFloor() && !m_WasOnFloorLastFrame;
 
-	private Position3D m_ViewmodelOffset, m_ViewmodelHolder;
-	private CapsuleShape m_Capsule;
-	private CollisionShape m_CollisionShape;
-	private AudioStreamPlayer m_SlideAudioPlayer;
 	private RayCast m_HeadBonker;
 	private ViewmodelSway m_WeaponSway;
 	private Vector3 m_BreathingAnimationTarget;
+	private Position3D m_ViewmodelOffset;
 
 	private bool m_WasOnFloorLastFrame = false;
 	private float m_Gravity = 0;
@@ -74,11 +63,9 @@ public class Player : HumanBase {
 	private Vector3 m_Bob;
 
 	public override void _Ready() {
+		base._Ready();
+
 		Hud = GetNode<HUD>("HUD");
-		m_SlideAudioPlayer = GetNode<AudioStreamPlayer>("SlidePlayer");
-		Head = GetNode<Position3D>("Head");
-		m_CollisionShape = GetNode<CollisionShape>("CollisionShape");
-		m_Capsule = (CapsuleShape)m_CollisionShape.Shape;
 		m_HeadBonker = Head.GetNode<RayCast>("Bonker");
 		CameraHolder = Head.GetNode<SmoothCamera>("CameraHolder");
 		CameraRecoil = CameraHolder.GetNode<CameraRecoil>("CameraRecoil");
@@ -87,46 +74,55 @@ public class Player : HumanBase {
 		m_WeaponSway = Camera.GetNode<ViewmodelSway>("ViewmodelSway");
 		m_ViewmodelOffset = m_WeaponSway.GetNode<Position3D>("ViewmodelOffset");
 		m_ViewmodelHolder = m_ViewmodelOffset.GetNode<Position3D>("ViewmodelHolder");
-		WeaponManager = m_ViewmodelHolder.GetNode<WeaponManager>("WeaponManager");
+		WeaponManager = m_ViewmodelHolder.GetNode<LocalWeaponManager>("WeaponManager");
 
 		MouseSensetivity = Config.GetValue<float>("mouse", "sens", DEFAULT_MOUSE_SENS);
 		Input.SetMouseMode(Input.MouseMode.Captured);
+
+		NetworkManager.OnTick += OnTick;
 	}
 
 	public override void _Process(float dt) {
 		TakeInput(dt);
 		m_Direction = m_Direction.LinearInterpolate(m_Input.Normalized(), m_Accel*dt);
-
-		CalculateSpeed(dt);
 		HandleRunTimer(dt);
 		CalculateAcceleration();
+		CalculateSpeed(dt);
 		CalculateHeight(dt);
+
 		HandleBobTimer(dt);
 		CalculateBob();
 		ApplyHeadBob(dt);
 		ApplyViewmodelBob(dt);
-		ApplyViewmodelConfig(dt);
 
 		IsFullyAiming = IsAiming && m_ViewmodelHolder.Transform.origin.DistanceTo(ViewmodelProperties.AimConfiguration.Position) <= FULLY_AIMING_DISTANCE_THRESHOLD;
 
 		HandleFOV(dt);
-		HandleSlidePlayer();
 		HandleBreathingAnimation(dt);
 
 		CameraTilt = Mathf.Lerp(CameraTilt, m_TargetCameraTilt, BOB_LERP_WEIGHT*dt);
-		Hud.Crosshair.Visible = !IsAiming && !Console.Instance.Visible;
+		Hud.Crosshair.Visible = !IsAiming && !Console.Active;
 
 		if(HasLanded) OnLand();
-
 		m_WasOnFloorLastFrame = IsOnFloor();
+
+		base._Process(dt);
 	}
 
 	public override void _PhysicsProcess(float dt) {
 		CalculatePhysicsMovement(dt);
 	}
 
+	private void OnTick(object sender, EventArgs args) {
+		if(NetworkManager.IsHost) {
+			if(NetworkManager.Network is Server server) {
+				server.Sender.PlayerTransform(-1);
+			}
+		}
+	}
+
 	public override void _Input(InputEvent e) {
-		if(Console.Instance.Visible) return;
+		if(Console.Active) return;
 
 		if(e is InputEventMouseMotion mouse_motion_e) {
 			Head.RotateX(Mathf.Deg2Rad(-mouse_motion_e.Relative.y * MouseSensetivity)); 
@@ -144,19 +140,18 @@ public class Player : HumanBase {
 
 	private void TakeInput(float dt) {
 		m_Input = Vector3.Zero;
+		Vector3 forward = GlobalTransform.basis.z;
+		Vector3 right = GlobalTransform.basis.x;
+		if(Input.IsActionPressed("move_right")) m_Input += right;
+		if(Input.IsActionPressed("move_left")) m_Input -= right;
+		if(Input.IsActionPressed("move_forward")) m_Input -= forward;
+		if(Input.IsActionPressed("move_backward")) m_Input += forward;
+		m_Input.y = 0;
+
 		m_TargetCameraTilt = 0;
 
 		EHumanState prev_state = State;
-		if(!Console.Instance.Visible) {
-			Vector3 forward = GlobalTransform.basis.z;
-			Vector3 right = GlobalTransform.basis.x;
-
-			if(Input.IsActionPressed("move_right")) m_Input += right;
-			if(Input.IsActionPressed("move_left")) m_Input -= right;
-			if(Input.IsActionPressed("move_forward")) m_Input -= forward;
-			if(Input.IsActionPressed("move_backward")) m_Input += forward;
-
-			m_Input.y = 0;
+		if(!Console.Active) {
 			IsAiming = Input.IsActionPressed("aim") && WeaponManager.DrawTimer == 0 && !WeaponManager.IsReloading;
 
 			if(!IsAiming && !WeaponManager.IsReloading && Input.IsActionPressed("run") && Input.IsActionPressed("move_forward") && IsOnFloor() && !WeaponManager.WillShoot && !WeaponManager.HasJustShot && WeaponManager.DrawTimer == 0) { 
@@ -243,78 +238,6 @@ public class Player : HumanBase {
 		m_ViewmodelOffset.Transform = t;
 	}
 
-	private void PlayFootstep() {
-		SoundEffect.Spawn(FOOTSTEP_SOUND, Random.RangeF(0.7f, 1.3f), RealVelocity.Length() - 20);
-	}
-
-	private void ApplyViewmodelConfig(float dt) {
-		if(WeaponManager.IsReloading) {
-			m_ViewmodelProperties = ViewmodelProperties.ReloadConfiguration;
-		} else if(IsAiming) {
-			m_ViewmodelProperties = ViewmodelProperties.AimConfiguration;
-			m_ViewmodelProperties.ChangeSpeed = WeaponManager.HeldWeapon.Data.AimSpeed;
-		} else if(WeaponManager.WantsToShoot || WeaponManager.HasJustShot) {
-			m_ViewmodelProperties = ViewmodelProperties.ShootConfiguration;
-		} else if(WeaponManager.HeldWeapon != null && WeaponManager.DrawTimer > WeaponDB.Weapons[WeaponManager.QueuedWeaponID].DrawTime * 0.5f) {
-			m_ViewmodelProperties = ViewmodelProperties.DrawConfiguration;
-		} else {
-			switch(State) {
-				case EHumanState.Running:
-					m_ViewmodelProperties = ViewmodelProperties.RunConfiguration;
-					break;
-
-				case EHumanState.Crouching:
-					m_ViewmodelProperties = ViewmodelProperties.CrouchConfiguration;
-					break;
-
-				case EHumanState.FastRunning:
-					m_ViewmodelProperties = ViewmodelProperties.FastRunConfiguration;
-					break;
-
-				case EHumanState.Sliding:
-					m_ViewmodelProperties = ViewmodelProperties.SlideConfiguration;
-					break;
-
-				default:
-					m_ViewmodelProperties = ViewmodelProperties.NormalConfiguration;
-					break;
-			}
-		}
-
-		Transform t = m_ViewmodelHolder.Transform;
-
-		if(m_ViewmodelProperties == ViewmodelProperties.DrawConfiguration) {
-			float f = 10 / WeaponManager.HeldWeapon.Data.DrawTime * dt;
-			t.origin = t.origin.LinearInterpolate(m_ViewmodelProperties.Position, f);
-			m_ViewmodelHolder.RotationDegrees = m_ViewmodelHolder.RotationDegrees.LinearInterpolate(m_ViewmodelProperties.Rotaton, f);
-		} else {
-			if(WeaponManager.DrawTimer > 0) {
-				float f = 10 / WeaponManager.HeldWeapon.Data.DrawTime * dt;
-				t.origin = t.origin.LinearInterpolate(m_ViewmodelProperties.Position, f);
-				m_ViewmodelHolder.RotationDegrees = m_ViewmodelHolder.RotationDegrees.LinearInterpolate(m_ViewmodelProperties.Rotaton, f);
-			} else {
-				t.origin = t.origin.LinearInterpolate(m_ViewmodelProperties.Position, m_ViewmodelProperties.ChangeSpeed*dt);
-				m_ViewmodelHolder.RotationDegrees = m_ViewmodelHolder.RotationDegrees.LinearInterpolate(m_ViewmodelProperties.Rotaton, m_ViewmodelProperties.ChangeSpeed*dt);
-			}
-		}
-
-		m_ViewmodelHolder.Transform = t;
-	}
-
-	private void CalculateHeight(float dt) {
-		HeightProperties properties = State switch {
-			EHumanState.Crouching => CROUCH_HEIGHT_PROPERTIES,
-			EHumanState.Sliding => SLIDE_HEIGHT_PROPERTIES,
-			_ => WALK_HEIGHT_PROPERTIES,
-		};
-
-		m_Capsule.Height = Mathf.Lerp(m_Capsule.Height, properties.Value, properties.Speed*dt);
-
-		Transform t = m_CollisionShape.Transform;
-		t.origin.y = (WALK_HEIGHT_PROPERTIES.Value - m_Capsule.Height)/2;
-		m_CollisionShape.Transform = t;
-	}
-
 	private void HandleFOV(float dt) {
 		if(IsAiming) {
 			Camera.Fov = Mathf.Lerp(Camera.Fov, WeaponManager.HeldWeapon.Data.AimFov, WeaponManager.HeldWeapon.Data.AimSpeed*dt);
@@ -386,16 +309,6 @@ public class Player : HumanBase {
 		RealVelocity = MoveAndSlideWithSnap(m_Velocity + Vector3.Up * m_Gravity, m_Snap, Vector3.Up);
 	}
 
-	private void HandleSlidePlayer() {
-		if(State == EHumanState.Sliding) {
-			if(!m_SlideAudioPlayer.Playing) {
-				m_SlideAudioPlayer.Play();
-			}
-		} else {
-			m_SlideAudioPlayer.Stop();
-		}
-	}
-
 	private void HandleBreathingAnimation(float dt) {
 		if((State == EHumanState.Walking || State == EHumanState.Crouching) && RealVelocity.Length() <= 1 && !WeaponManager.WillShoot) {
 			m_BreatheTimer += dt;
@@ -414,5 +327,9 @@ public class Player : HumanBase {
 
 	private void OnLand() {
 		PlayFootstep();
+	}
+
+	private void PlayFootstep() {
+		SoundEffect.Spawn(FOOTSTEP_SOUND, Random.RangeF(0.7f, 1.3f), RealVelocity.Length() - 20);
 	}
 }

@@ -45,7 +45,6 @@ public class Weapon : Spatial {
 
 	public void Shoot() {
 		--AmmoLeft;
-		SoundEffect.Spawn(Data.ShootSound, Random.RangeF(0.95f, 1.05f));
 
 		float mul_y = Random.RangeF(0.8f, 1.2f) * Random.Sign();
 		float mul = 1;
