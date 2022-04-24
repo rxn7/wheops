@@ -14,7 +14,7 @@ public class ServerPacketHandler {
 		Logger.Info($"Handshake received from {nickname} | {peer.EndPoint}");
 
 		if(NetworkManager.NetworkPlayers.Values.Where(p => p.NetworkData.Nickname == nickname).Count() > 0) {
-			Logger.Info("Player with nickname: {nickname} couldn't be connected: player with this nickname already exists");
+			Logger.Info($"Player with nickname: {nickname} couldn't be connected: player with this nickname already exists");
 			peer.Disconnect();
 			return;
 		}
