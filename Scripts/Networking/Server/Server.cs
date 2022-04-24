@@ -60,6 +60,7 @@ public class Server : NetworkBase {
 
 		if(NetworkManager.NetworkPlayers.ContainsKey(peer.Id)) {
 			NetworkManager.NetworkPlayers[peer.Id].QueueFree();
+			NetworkManager.NetworkPlayers.Remove(peer.Id);
 		}
 
 		Peers.Remove(peer.Id);
