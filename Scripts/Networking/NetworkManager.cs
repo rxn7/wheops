@@ -39,6 +39,8 @@ public class NetworkManager : Node {
 
 	public override void _Process(float dt) {
 		if(IsNetworked) {
+			if(Network is Client client && client.ServerPeer == null) return;
+
 			_tick_timer += dt;
 			if(_tick_timer >= TICK_RATE) {
 				Network.Tick();

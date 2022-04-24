@@ -4,7 +4,7 @@ using LiteNetLib;
 using System.Collections.Generic;
 
 public abstract class NetworkBase : Node, INetEventListener {
-	protected NetManager NetManager { get; set; }
+	public NetManager NetManager { get; set; }
 
 	protected abstract void HandlePacket(NetPeer peer, byte id, NetPacketReader reader);
 
