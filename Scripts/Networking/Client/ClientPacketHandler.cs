@@ -12,7 +12,11 @@ public class ClientPacketHandler {
 			Vector3 position = reader.GetVector3();
 			Vector2 rotation = reader.GetVector2();
 
-			NetworkPlayerData data = new NetworkPlayerData(id, nickname);
+			NetworkPlayerData data = new NetworkPlayerData { 
+				ID = id, 
+				Nickname = nickname,
+			};
+
 			Global.SpawnNetworkPlayer(data, position, rotation);
 		}
 
@@ -54,5 +58,28 @@ public class ClientPacketHandler {
 		string msg = reader.GetString();
 
 		Logger.Info($"[b]{NetworkManager.NetworkPlayers[id].NetworkData.Nickname}[/b] says: {msg}");
+	}
+	
+	public void PlayerJoinedHandler(NetPacketReader reader) {
+		int id = reader.GetInt();
+		if(NetworkManager.NetworkPlayers.ContainsKey(id)) {
+			Logger.Error($"Player with this id: {id} already exists!");
+			return;
+		}
+		string nickname = reader.GetString();
+		Vector3 position = reader.GetVector3();
+		Vector2 rotation = reader.GetVector2();
+
+		Global.SpawnNetworkPlayer(new NetworkPlayerData { ID = id, Nickname = nickname }, position, rotation);
+	}
+
+	public void PlayerDisconnectedHandler(NetPacketReader reader) {
+		int id = reader.GetInt();
+
+		if(NetworkManager.NetworkPlayers.ContainsKey(id)) {
+			NetworkPlayer net_player = NetworkManager.NetworkPlayers[id];
+			Logger.Info($"{net_player.NetworkData.Nickname} has disconnected");
+			NetworkManager.NetworkPlayers.Remove(id);
+		}
 	}
 }

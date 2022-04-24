@@ -7,8 +7,7 @@ public class Server : NetworkBase {
 	
 	public Dictionary<int, NetPeer> Peers { get; private set; }
 
-	private delegate void ServerPacketHandlerCallback(NetPeer peer, NetPacketReader reader);
-	private Dictionary<byte, ServerPacketHandlerCallback> m_PacketHandlerCallbacks;
+	private delegate void ServerPacketHandlerCallback(NetPeer peer, NetPacketReader reader); private Dictionary<byte, ServerPacketHandlerCallback> m_PacketHandlerCallbacks;
 	private int m_MaxPeers;
 
 	public Server() : base() { 
@@ -58,5 +57,7 @@ public class Server : NetworkBase {
 
 	public override void OnPeerDisconnected(NetPeer peer, DisconnectInfo info) {
 		base.OnPeerDisconnected(peer, info);
+		Peers.Remove(peer.Id);
+		Sender.PlayerDisconnected(peer.Id);
 	}
 }

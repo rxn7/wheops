@@ -1,9 +1,4 @@
 public class NetworkPlayerData {
-	public int ID { get; private set; }
-	public string Nickname { get; private set; }
-	
-	public NetworkPlayerData(int id, string nickname) {
-		ID = id;
-		Nickname = nickname;
-	}
+	public int ID { get; set; }
+	public string Nickname { get; set; }
 }

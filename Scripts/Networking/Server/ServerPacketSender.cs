@@ -27,6 +27,13 @@ public class ServerPacketSender : PacketSender {
 		peer.Send(m_Writer.Data, method);
 	}
 
+	private void WritePlayerData(int id, string nickname, Vector3 position, Vector2 rotation) {
+		m_Writer.Put(id);
+		m_Writer.Put(nickname);
+		m_Writer.Put(position);
+		m_Writer.Put(rotation);
+	}
+
 	public void Handshake(NetPeer peer) {
 		InitializePacket((byte)PacketFromServer.Handshake);
 
@@ -35,17 +42,11 @@ public class ServerPacketSender : PacketSender {
 		m_Writer.Put(NetworkManager.NetworkPlayers.Count + 1);
 		foreach(KeyValuePair<int, NetworkPlayer> pair in NetworkManager.NetworkPlayers) {
 			if(pair.Key != peer.Id) {
-				m_Writer.Put(pair.Key);
-				m_Writer.Put(pair.Value.NetworkData.Nickname);
-				m_Writer.Put(pair.Value.Position);
-				m_Writer.Put(pair.Value.Rotation);
+				WritePlayerData(pair.Key, pair.Value.NetworkData.Nickname, pair.Value.Position, pair.Value.Rotation);
 			}
 		}
 
-		m_Writer.Put(-1);
-		m_Writer.Put(Global.Nickname);
-		m_Writer.Put(Global.Player.GlobalTransform.origin);
-		m_Writer.Put(new Vector2(Global.Player.Camera.RotationDegrees.x, Global.Player.Camera.RotationDegrees.y));
+		WritePlayerData(-1, Global.Nickname, Global.Player.GlobalTransform.origin, new Vector2(Global.Player.Camera.RotationDegrees.x, Global.Player.Camera.RotationDegrees.y));
 
 		SendToPeer(peer, DeliveryMethod.ReliableOrdered);
 	}
@@ -78,6 +79,18 @@ public class ServerPacketSender : PacketSender {
 		InitializePacket((byte)PacketFromServer.ChatMessage);
 		m_Writer.Put(id);
 		m_Writer.Put(msg);
+		SendToEveryoneExcept(id, DeliveryMethod.ReliableOrdered);
+	}
+
+	public void PlayerJoined(NetworkPlayerData data) {
+		InitializePacket((byte)PacketFromServer.PlayerJoined);
+		WritePlayerData(data.ID, data.Nickname, Vector3.Zero, Vector2.Zero);
+		SendToEveryoneExcept(data.ID, DeliveryMethod.ReliableOrdered);
+	}
+
+	public void PlayerDisconnected(int id) {
+		InitializePacket((byte)PacketFromServer.PlayerDisconnected);
+		m_Writer.Put(id);
 		SendToEveryoneExcept(id, DeliveryMethod.ReliableOrdered);
 	}
 }

@@ -17,8 +17,7 @@ public struct HeightProperties {
 	public float ChangeSpeed { get; private set; }
 };
 
-public class HumanBase : KinematicBody {
-	public static readonly AudioStream FOOTSTEP_SOUND = GD.Load<AudioStream>("res://Sounds/footstep.wav");
+public class HumanBase : KinematicBody { public static readonly AudioStream FOOTSTEP_SOUND = GD.Load<AudioStream>("res://Sounds/footstep.wav");
 
 	public EHumanState State { get; protected set; } = EHumanState.Walking;
 	public Position3D Head { get; private set; }

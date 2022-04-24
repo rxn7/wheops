@@ -20,7 +20,6 @@ public class DebugLabel : Label {
 			Text += $"\nplatform: {OS.GetName()}";
 			Text += $"\napi: {OS.GetCurrentVideoDriver()}";
 
-
 			if(NetworkManager.IsNetworked) {
 				Text += "\n\n== NETWORK ==";
 				Text += $"\nping: {NetworkManager.Ping}";

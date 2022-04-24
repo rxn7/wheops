@@ -19,6 +19,8 @@ public class Client : NetworkBase {
 			{ (byte)PacketFromServer.PlayerTransfrom, Handler.PlayerTransfromHandler },
 			{ (byte)PacketFromServer.MapChange, Handler.MapChangeHandler },
 			{ (byte)PacketFromServer.ChatMessage, Handler.ChatMessageHandler },
+			{ (byte)PacketFromServer.PlayerJoined, Handler.PlayerJoinedHandler },
+			{ (byte)PacketFromServer.PlayerDisconnected, Handler.PlayerDisconnectedHandler },
 		};
 	}
 

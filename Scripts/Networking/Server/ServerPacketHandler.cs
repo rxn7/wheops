@@ -14,7 +14,10 @@ public class ServerPacketHandler {
 
 		m_Server.Peers.Add(peer.Id, peer);
 		m_Server.Sender.Handshake(peer);
-		Global.SpawnNetworkPlayer(new NetworkPlayerData(peer.Id, nickname), Vector3.Zero, Vector2.Zero);
+
+		NetworkPlayerData data = new NetworkPlayerData { ID = peer.Id, Nickname = nickname };
+		m_Server.Sender.PlayerJoined(data);
+		Global.SpawnNetworkPlayer(data, Vector3.Zero, Vector2.Zero);
 	}
 
 	public void ChatMessgeHandler(NetPeer peer, NetPacketReader reader) {
