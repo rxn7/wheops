@@ -140,18 +140,18 @@ public class LocalPlayer : HumanBase {
 
 	private void TakeInput(float dt) {
 		m_Input = Vector3.Zero;
-		Vector3 forward = GlobalTransform.basis.z;
-		Vector3 right = GlobalTransform.basis.x;
-		if(Input.IsActionPressed("move_right")) m_Input += right;
-		if(Input.IsActionPressed("move_left")) m_Input -= right;
-		if(Input.IsActionPressed("move_forward")) m_Input -= forward;
-		if(Input.IsActionPressed("move_backward")) m_Input += forward;
-		m_Input.y = 0;
-
 		m_TargetCameraTilt = 0;
 
 		EHumanState prev_state = State;
 		if(!Console.Active) {
+			Vector3 forward = GlobalTransform.basis.z;
+			Vector3 right = GlobalTransform.basis.x;
+			if(Input.IsActionPressed("move_right")) m_Input += right;
+			if(Input.IsActionPressed("move_left")) m_Input -= right;
+			if(Input.IsActionPressed("move_forward")) m_Input -= forward;
+			if(Input.IsActionPressed("move_backward")) m_Input += forward;
+			m_Input.y = 0;
+
 			IsAiming = Input.IsActionPressed("aim") && WeaponManager.DrawTimer == 0 && !WeaponManager.IsReloading;
 
 			if(!IsAiming && !WeaponManager.IsReloading && Input.IsActionPressed("run") && Input.IsActionPressed("move_forward") && IsOnFloor() && !WeaponManager.WillShoot && !WeaponManager.HasJustShot && WeaponManager.DrawTimer == 0) { 
