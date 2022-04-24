@@ -8,7 +8,7 @@ public class Client : NetworkBase {
 
 	public ClientPacketSender Sender { get; private set; }
 	public ClientPacketHandler Handler { get; private set; }
-	public NetPeer ServerPeer { get; private set; }
+	public NetPeer ServerPeer { get; private set; } = null;
 
 	public Client() : base() { 
 		Sender = new ClientPacketSender(this);
