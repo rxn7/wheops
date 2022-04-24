@@ -42,7 +42,7 @@ public class ClientPacketSender : PacketSender {
 	}
 	*/
 
-	public void PlayerTrasform() {
+	public void PlayerTransform() {
 		InitializePacket((byte)PacketFromServer.PlayerTransfrom);
 
 		m_Writer.Put(Global.Player.Position);

@@ -15,7 +15,7 @@ public class NetworkPlayer : HumanBase {
 	public static readonly PackedScene SCENE = GD.Load<PackedScene>("res://Scenes/NetworkPlayer.tscn");
 
 	public NetworkPlayerData NetworkData { get; private set; }
-	private Vector3 m_NetworkPosition;
+	// private Vector3 m_NetworkPosition;
 	// public NetworkPlayerInput Input = null;
 
 	public new Vector2 Rotation {
