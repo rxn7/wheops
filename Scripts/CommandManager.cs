@@ -158,7 +158,7 @@ public static class CommandManager {
 			return false;
 		}
 
-		if(!NetworkManager.IsHost) {
+		if(!NetworkManager.IsHost || NetworkManager.IsSinglePlayer) {
 			Logger.Error("Only host can change map!");
 			return false;
 		}
