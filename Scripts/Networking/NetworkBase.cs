@@ -26,11 +26,7 @@ public abstract class NetworkBase : Node, INetEventListener {
 	}
 
 	public virtual void Tick() {
-		try {
-			NetManager.PollEvents();
-		} catch(Exception ex) {
-			Logger.Error($"OH SHIT: {ex}");
-		}
+		NetManager.PollEvents();
 	}
 
 	public virtual void OnConnectionRequest(ConnectionRequest req) {

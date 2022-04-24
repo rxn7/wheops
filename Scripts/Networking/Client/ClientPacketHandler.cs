@@ -37,7 +37,7 @@ public class ClientPacketHandler {
 			net_player.GlobalTransform = t;
 		} else {
 			Logger.Error("Got a PlayerTransform packet of unexisting NetworkPlayer id!");
-			NetworkManager.Disconnect();
+			// NetworkManager.Disconnect();
 		}
 	}
 

@@ -13,7 +13,7 @@ public class ServerPacketHandler {
 		string nickname = reader.GetString();
 		Logger.Info($"Handshake received from {nickname} | {peer.EndPoint}");
 
-		if(NetworkManager.NetworkPlayers.Values.Where(p => p.NetworkData.Nickname == nickname).Count() > 0) {
+		if(NetworkManager.NetworkPlayers.Values.Where(p => p.NetworkData.Nickname == nickname).Count() > 0 || nickname == Global.Nickname) {
 			Logger.Info($"Player with nickname: {nickname} couldn't be connected: player with this nickname already exists");
 			peer.Disconnect();
 			return;
@@ -62,8 +62,6 @@ public class ServerPacketHandler {
 		int id = peer.Id;
 		Vector3 position = reader.GetVector3();
 		Vector2 rotation = reader.GetVector2();
-
-		Logger.Info("CUM");
 
 		if(NetworkManager.NetworkPlayers.Keys.Contains(id)) {
 			NetworkPlayer player = NetworkManager.NetworkPlayers[id];

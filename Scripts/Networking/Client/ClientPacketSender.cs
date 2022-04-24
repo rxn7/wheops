@@ -45,8 +45,6 @@ public class ClientPacketSender : PacketSender {
 	public void PlayerTransform() {
 		InitializePacket((byte)PacketFromClient.PlayerTransform);
 
-		Logger.Info("i came");
-
 		m_Writer.Put(Global.Player.Position);
 		m_Writer.Put(new Vector2(Global.Player.Camera.RotationDegrees.x, Global.Player.Camera.RotationDegrees.y));
 

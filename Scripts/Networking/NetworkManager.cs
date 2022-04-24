@@ -41,12 +41,13 @@ public class NetworkManager : Node {
 		if(IsNetworked) {
 			_tick_timer += dt;
 			if(_tick_timer >= TICK_RATE) {
-				Network.Tick();
+				if(Network.NetManager.IsRunning) {
+					Network.Tick();
 
-				if(!(Network is Client client) || client.ServerPeer != null) {
-					OnTick(Instance, EventArgs.Empty);
+					if(Network is Server || (Network is Client client && client.ServerPeer != null)) {
+						OnTick(Instance, EventArgs.Empty);
+					}
 				}
-
 				_tick_timer = 0;
 			}
 		}

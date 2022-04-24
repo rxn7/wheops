@@ -66,7 +66,7 @@ public class ServerPacketSender : PacketSender {
 			m_Writer.Put(net_player.Rotation);
 		}
 
-		SendToEveryone(DeliveryMethod.Unreliable);
+		SendToEveryoneExcept(id, DeliveryMethod.Unreliable);
 	}
 
 	public void MapChange(string name) {
