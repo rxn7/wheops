@@ -114,12 +114,10 @@ public class LocalPlayer : HumanBase {
 	}
 
 	private void OnTick(object sender, EventArgs args) {
-		if(NetworkManager.IsHost) {
-			if(NetworkManager.Network is Server server) {
-				server.Sender.PlayerTransform(-1);
-			}  else if(NetworkManager.Network is Client client) {
-				client.Sender.PlayerTransform();
-			}
+		if(NetworkManager.Network is Server server) {
+			server.Sender.PlayerTransform(-1);
+		}  else if(NetworkManager.Network is Client client) {
+			client.Sender.PlayerTransform();
 		}
 	}
 
