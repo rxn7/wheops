@@ -30,6 +30,7 @@ public class ClientPacketSender : PacketSender {
 		SendToServer(DeliveryMethod.ReliableOrdered);
 	}
 
+	/*
 	public void Input(Vector3 movement, bool jump, bool crouch, bool run, bool shoot) {
 		InitializePacket((byte)PacketFromClient.Input);
 		m_Writer.Put(movement);
@@ -38,5 +39,15 @@ public class ClientPacketSender : PacketSender {
 		m_Writer.Put(run);
 		m_Writer.Put(shoot);
 		SendToServer(DeliveryMethod.ReliableUnordered);
+	}
+	*/
+
+	public void PlayerTrasform() {
+		InitializePacket((byte)PacketFromServer.PlayerTransfrom);
+
+		m_Writer.Put(Global.Player.Position);
+		m_Writer.Put(new Vector2(Global.Player.Camera.RotationDegrees.x, Global.Player.Camera.RotationDegrees.y));
+
+		SendToServer(DeliveryMethod.Unreliable);
 	}
 }

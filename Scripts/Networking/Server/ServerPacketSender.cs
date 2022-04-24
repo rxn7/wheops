@@ -62,7 +62,7 @@ public class ServerPacketSender : PacketSender {
 			m_Writer.Put(id);
 			NetworkPlayer net_player = NetworkManager.NetworkPlayers[id];
 
-			m_Writer.Put(net_player.GlobalTransform.origin);
+			m_Writer.Put(net_player.Position);
 			m_Writer.Put(net_player.Rotation);
 		}
 

@@ -34,6 +34,7 @@ public class ServerPacketHandler {
 		m_Server.Sender.ChatMessage(peer.Id, msg);
 	}
 
+	/*
 	public void InputHandler(NetPeer peer, NetPacketReader reader) {
 		int id = peer.Id;
 
@@ -45,6 +46,30 @@ public class ServerPacketHandler {
 
 		if(NetworkManager.NetworkPlayers.Keys.Contains(id)) {
 			NetworkPlayer player = NetworkManager.NetworkPlayers[id];
+
+			player.Input.Movement = movement;
+			player.Input.Jump = jump;
+			player.Input.Crouch = crouch;
+			player.Input.Run = run;
+			player.Input.Shoot = shoot;
+		} else {
+			Logger.Error($"Player with id {id} doesn't exist");
+		}
+	}
+	*/
+
+	public void PlayerTransformHandler(NetPeer peer, NetPacketReader reader) {
+		int id = peer.Id;
+		Vector3 position = reader.GetVector3();
+		Vector2 rotation = reader.GetVector2();
+
+		if(NetworkManager.NetworkPlayers.Keys.Contains(id)) {
+			NetworkPlayer player = NetworkManager.NetworkPlayers[id];
+			player.Position = position;
+			player.Rotation = rotation;
+			m_Server.Sender.PlayerTransform(id);
+		} else {
+			Logger.Error($"Player with id {id} doesn't exist");
 		}
 	}
 }

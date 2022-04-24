@@ -18,11 +18,18 @@ public struct HeightProperties {
 };
 
 public class HumanBase : KinematicBody { public static readonly AudioStream FOOTSTEP_SOUND = GD.Load<AudioStream>("res://Sounds/footstep.wav");
-
 	public EHumanState State { get; protected set; } = EHumanState.Walking;
 	public Position3D Head { get; private set; }
 	public bool IsAiming { get; protected set; }
 	public WeaponManagerBase WeaponManager { get; protected set; }
+	public Vector3 Position {
+		get => GlobalTransform.origin;
+		set {
+			Transform t = GlobalTransform;		
+			t.origin = value;
+			GlobalTransform = t;
+		}
+	}
 
 	protected AudioStreamPlayer3D m_SlideAudioPlayer;
 	protected ViewmodelProperties m_ViewmodelProperties;
