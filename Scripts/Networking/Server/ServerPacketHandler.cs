@@ -1,5 +1,6 @@
 using LiteNetLib;
 using Godot;
+using System.Linq;
 
 public class ServerPacketHandler {
 	public Server m_Server;
@@ -11,6 +12,12 @@ public class ServerPacketHandler {
 	public void HandshakeHandler(NetPeer peer, NetPacketReader reader) {
 		string nickname = reader.GetString();
 		Logger.Info($"Handshake received from {nickname} | {peer.EndPoint}");
+
+		if(NetworkManager.NetworkPlayers.Values.Where(p => p.NetworkData.Nickname == nickname).Count() > 0) {
+			Logger.Info("Player with nickname: {nickname} couldn't be connected: player with this nickname already exists");
+			peer.Disconnect();
+			return;
+		}
 
 		m_Server.Peers.Add(peer.Id, peer);
 		m_Server.Sender.Handshake(peer);

@@ -57,6 +57,11 @@ public class Server : NetworkBase {
 
 	public override void OnPeerDisconnected(NetPeer peer, DisconnectInfo info) {
 		base.OnPeerDisconnected(peer, info);
+
+		if(NetworkManager.NetworkPlayers.ContainsKey(peer.Id)) {
+			NetworkManager.NetworkPlayers[peer.Id].QueueFree();
+		}
+
 		Peers.Remove(peer.Id);
 		Sender.PlayerDisconnected(peer.Id);
 	}

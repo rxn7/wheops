@@ -79,6 +79,7 @@ public class ClientPacketHandler {
 		if(NetworkManager.NetworkPlayers.ContainsKey(id)) {
 			NetworkPlayer net_player = NetworkManager.NetworkPlayers[id];
 			Logger.Info($"{net_player.NetworkData.Nickname} has disconnected");
+			net_player.QueueFree();
 			NetworkManager.NetworkPlayers.Remove(id);
 		}
 	}
