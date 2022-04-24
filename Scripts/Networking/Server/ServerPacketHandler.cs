@@ -63,6 +63,8 @@ public class ServerPacketHandler {
 		Vector3 position = reader.GetVector3();
 		Vector2 rotation = reader.GetVector2();
 
+		Logger.Info("CUM");
+
 		if(NetworkManager.NetworkPlayers.Keys.Contains(id)) {
 			NetworkPlayer player = NetworkManager.NetworkPlayers[id];
 			player.Position = position;

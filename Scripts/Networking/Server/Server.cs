@@ -19,6 +19,7 @@ public class Server : NetworkBase {
 		m_PacketHandlerCallbacks = new Dictionary<byte, ServerPacketHandlerCallback>() {
 			{ (byte)PacketFromClient.Handshake, Handler.HandshakeHandler },
 			{ (byte)PacketFromClient.ChatMessage, Handler.ChatMessgeHandler },
+			{ (byte)PacketFromClient.PlayerTransform, Handler.PlayerTransformHandler },
 		};
 	}
 
