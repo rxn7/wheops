@@ -10,6 +10,4 @@ public enum PacketFromServer {
 public enum PacketFromClient {
 	Handshake,
 	ChatMessage,
-	// Input,
-	PlayerTransform,
 }

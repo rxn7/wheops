@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-public class LocalWeaponManager : WeaponManagerBase {
+public class LocalPlayerWeaponManager : WeaponManagerBase {
 	public float HeatTimer { get; private set; }
 
 	[Export(PropertyHint.Layers3dPhysics)] private uint m_ShootRaycastMask = 0;
@@ -29,7 +29,7 @@ public class LocalWeaponManager : WeaponManagerBase {
 	public override void _Process(float dt) {
 		base._Process(dt);
 
-		if(NetworkManager.IsHost || NetworkManager.IsSinglePlayer) {
+		if(NetworkManager.IsHost || !NetworkManager.IsNetworked) {
 			LastShot += dt;
 			
 			if(HasJustShot && WantsToShoot && HeldWeapon.AmmoLeft > 0) HeatTimer += dt;
@@ -38,6 +38,31 @@ public class LocalWeaponManager : WeaponManagerBase {
 			TakeInput(); 
 			HandleReloading(dt);
 			HandleShooting(dt);
+		}
+	}
+
+	public override void _Input(InputEvent e) {
+		if(Console.Instance.Visible || (NetworkManager.IsNetworked && !NetworkManager.IsHost)) return;
+
+		if(e.IsActionPressed("weapon_up")) {
+			QueueWeaponChange(QueuedWeaponID+1);
+		} else if(e.IsActionPressed("weapon_down")) {
+			QueueWeaponChange(QueuedWeaponID-1);
+		}
+	}
+
+
+	private void TakeInput() {
+		if(Console.Instance.Visible || (NetworkManager.IsNetworked && !NetworkManager.IsHost)) return;
+
+		if(Input.IsActionJustPressed("reload") && HeldWeapon.AmmoLeft < HeldWeapon.Data.AmmoCap && DrawTimer == 0) {
+			StartReload();
+		}
+
+		for(int i=0; i<m_Loadout.Weapons.Length && i<9; ++i) {
+			if(Input.IsActionJustPressed("weapon" + i)) {
+				QueueWeaponChange(i);
+			}
 		}
 	}
 
@@ -132,19 +157,5 @@ public class LocalWeaponManager : WeaponManagerBase {
 				}
 			}
 		} 
-	}
-
-	private void TakeInput() {
-		if(Console.Instance.Visible) return;
-
-		if(Input.IsActionJustPressed("reload") && HeldWeapon.AmmoLeft < HeldWeapon.Data.AmmoCap && DrawTimer == 0) {
-			StartReload();
-		}
-
-		for(int i=0; i<m_Loadout.Weapons.Length && i<9; ++i) {
-			if(Input.IsActionJustPressed("weapon" + i)) {
-				QueueWeaponChange(i);
-			}
-		}
 	}
 }

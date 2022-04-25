@@ -16,7 +16,7 @@ public abstract class NetworkBase : Node, INetEventListener {
 	}
 
 	public virtual void Destroy() {
-		foreach(NetworkPlayer net_player in NetworkManager.NetworkPlayers.Values) {
+		foreach(RemotePlayer net_player in NetworkManager.NetworkPlayers.Values) {
 			net_player.QueueFree();
 		}
 		NetworkManager.NetworkPlayers.Clear();

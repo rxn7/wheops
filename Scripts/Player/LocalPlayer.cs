@@ -19,8 +19,7 @@ public class LocalPlayer : HumanBase {
 	public const float BOB_LERP_WEIGHT = 10;
 	public const float HEADBOB_AMPLITUDE = 0.1f;
 	public const float VIEWMODEL_BOB_AMPLITUDE = 0.004f;
-	public const float BOB_VELOCITY_THRESHOLD = 2;
-	public const float CROUCH_RECOIL_MULTIPLIER = 0.8f;
+	public const float BOB_VELOCITY_THRESHOLD = 2; public const float CROUCH_RECOIL_MULTIPLIER = 0.8f;
 	public const float DEFAULT_FOV = 80;
 	public const float SLIDE_SPEED_DECREASE = 1.5f;
 	public const float SLIDE_ACCEL = 1f;
@@ -49,6 +48,7 @@ public class LocalPlayer : HumanBase {
 	private Position3D m_ViewmodelOffset;
 
 	private bool m_WasOnFloorLastFrame = false;
+	private bool m_JumpInput = false;
 	private float m_Gravity = 0;
 	private float m_TargetCameraTilt = 0; 
 	private float m_BobTimer = 0;
@@ -74,7 +74,7 @@ public class LocalPlayer : HumanBase {
 		m_WeaponSway = Camera.GetNode<ViewmodelSway>("ViewmodelSway");
 		m_ViewmodelOffset = m_WeaponSway.GetNode<Position3D>("ViewmodelOffset");
 		m_ViewmodelHolder = m_ViewmodelOffset.GetNode<Position3D>("ViewmodelHolder");
-		WeaponManager = m_ViewmodelHolder.GetNode<LocalWeaponManager>("WeaponManager");
+		WeaponManager = m_ViewmodelHolder.GetNode<LocalPlayerWeaponManager>("WeaponManager");
 
 		MouseSensetivity = Config.GetValue<float>("mouse", "sens", DEFAULT_MOUSE_SENS);
 		Input.SetMouseMode(Input.MouseMode.Captured);
@@ -84,11 +84,14 @@ public class LocalPlayer : HumanBase {
 
 	public override void _Process(float dt) {
 		TakeInput(dt);
-		m_Direction = m_Direction.LinearInterpolate(m_Input.Normalized(), m_Accel*dt);
-		HandleRunTimer(dt);
-		CalculateAcceleration();
-		CalculateSpeed(dt);
-		CalculateHeight(dt);
+
+		if(NetworkManager.IsHost || !NetworkManager.IsNetworked) {
+			m_Direction = m_Direction.LinearInterpolate(m_Input.Normalized(), m_Accel*dt);
+			HandleRunTimer(dt);
+			CalculateAcceleration();
+			CalculateSpeed(dt);
+			CalculateHeight(dt);
+		}
 
 		HandleBobTimer(dt);
 		CalculateBob();
@@ -116,9 +119,7 @@ public class LocalPlayer : HumanBase {
 	private void OnTick(object sender, EventArgs args) {
 		if(NetworkManager.Network is Server server) {
 			server.Sender.PlayerTransform(-1);
-		} else if(NetworkManager.Network is Client client) {
-			client.Sender.PlayerTransform();
-		}
+		} 
 	}
 
 	public override void _Input(InputEvent e) {
@@ -139,11 +140,12 @@ public class LocalPlayer : HumanBase {
 	}
 
 	private void TakeInput(float dt) {
+		m_JumpInput = false;
 		m_Input = Vector3.Zero;
 		m_TargetCameraTilt = 0;
 
 		EHumanState prev_state = State;
-		if(!Console.Active) {
+		if(!Console.Active && (NetworkManager.IsHost || !NetworkManager.IsNetworked)) {
 			Vector3 forward = GlobalTransform.basis.z;
 			Vector3 right = GlobalTransform.basis.x;
 			if(Input.IsActionPressed("move_right")) m_Input += right;
@@ -152,6 +154,7 @@ public class LocalPlayer : HumanBase {
 			if(Input.IsActionPressed("move_backward")) m_Input += forward;
 			m_Input.y = 0;
 
+			m_JumpInput = Input.IsActionPressed("jump");
 			IsAiming = Input.IsActionPressed("aim") && WeaponManager.DrawTimer == 0 && !WeaponManager.IsReloading;
 
 			if(!IsAiming && !WeaponManager.IsReloading && Input.IsActionPressed("run") && Input.IsActionPressed("move_forward") && IsOnFloor() && !WeaponManager.WillShoot && !WeaponManager.HasJustShot && WeaponManager.DrawTimer == 0) { 
@@ -288,7 +291,7 @@ public class LocalPlayer : HumanBase {
 
 	private void CalculatePhysicsMovement(float dt) {
 		if(IsOnFloor()) {
-			if(!Console.Instance.Visible && Input.IsActionJustPressed("jump")) {
+			if(m_JumpInput) {
 				m_Gravity = JUMP;
 				m_Snap = Vector3.Zero;
 			} else {

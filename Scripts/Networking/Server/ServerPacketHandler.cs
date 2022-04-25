@@ -1,4 +1,5 @@
 using LiteNetLib;
+using LiteNetLib.Utils;
 using Godot;
 using System.Linq;
 
@@ -15,14 +16,14 @@ public class ServerPacketHandler {
 
 		if(NetworkManager.NetworkPlayers.Values.Where(p => p.NetworkData.Nickname == nickname).Count() > 0 || nickname == Global.Nickname) {
 			Logger.Info($"Player with nickname: {nickname} couldn't be connected: player with this nickname already exists");
-			peer.Disconnect();
+			m_Server.DisconnectPeer(peer, "Player with this nickname is already present on this server");
 			return;
 		}
 
 		m_Server.Peers.Add(peer.Id, peer);
 		m_Server.Sender.Handshake(peer);
 
-		NetworkPlayerData data = new NetworkPlayerData { ID = peer.Id, Nickname = nickname };
+		RemotePlayerData data = new RemotePlayerData { ID = peer.Id, Nickname = nickname };
 		m_Server.Sender.PlayerJoined(data);
 		Global.SpawnNetworkPlayer(data, Vector3.Zero, Vector2.Zero);
 	}
@@ -32,44 +33,5 @@ public class ServerPacketHandler {
 		Logger.Info($"[b]{NetworkManager.NetworkPlayers[peer.Id].NetworkData.Nickname}[/b] says: {msg}");
 
 		m_Server.Sender.ChatMessage(peer.Id, msg);
-	}
-
-	/*
-	public void InputHandler(NetPeer peer, NetPacketReader reader) {
-		int id = peer.Id;
-
-		Vector3 movement = reader.GetVector3();				
-		bool jump = reader.GetBool();
-		bool crouch = reader.GetBool();
-		bool run = reader.GetBool();
-		bool shoot = reader.GetBool();
-
-		if(NetworkManager.NetworkPlayers.Keys.Contains(id)) {
-			NetworkPlayer player = NetworkManager.NetworkPlayers[id];
-
-			player.Input.Movement = movement;
-			player.Input.Jump = jump;
-			player.Input.Crouch = crouch;
-			player.Input.Run = run;
-			player.Input.Shoot = shoot;
-		} else {
-			Logger.Error($"Player with id {id} doesn't exist");
-		}
-	}
-	*/
-
-	public void PlayerTransformHandler(NetPeer peer, NetPacketReader reader) {
-		int id = peer.Id;
-		Vector3 position = reader.GetVector3();
-		Vector2 rotation = reader.GetVector2();
-
-		if(NetworkManager.NetworkPlayers.Keys.Contains(id)) {
-			NetworkPlayer player = NetworkManager.NetworkPlayers[id];
-			player.Position = position;
-			player.Rotation = rotation;
-			m_Server.Sender.PlayerTransform(id);
-		} else {
-			Logger.Error($"Player with id {id} doesn't exist");
-		}
 	}
 }

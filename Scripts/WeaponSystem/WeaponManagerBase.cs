@@ -22,14 +22,6 @@ public abstract class WeaponManagerBase : Spatial {
 		HandlePickup(dt);
 	}
 
-	public override void _Input(InputEvent e) {
-		if(e.IsActionPressed("weapon_up")) {
-			QueueWeaponChange(QueuedWeaponID+1);
-		} else if(e.IsActionPressed("weapon_down")) {
-			QueueWeaponChange(QueuedWeaponID-1);
-		}
-	}
-
 	protected void HandlePickup(float dt) {
 		DrawTimer -= dt;
 		if(DrawTimer <= 0) {

@@ -40,9 +40,9 @@ public class ServerPacketSender : PacketSender {
 		m_Writer.Put(Global.CurrentMap.Name);
 
 		m_Writer.Put(NetworkManager.NetworkPlayers.Count + 1);
-		foreach(KeyValuePair<int, NetworkPlayer> pair in NetworkManager.NetworkPlayers) {
+		foreach(KeyValuePair<int, RemotePlayer> pair in NetworkManager.NetworkPlayers) {
 			if(pair.Key != peer.Id) {
-				WritePlayerData(pair.Key, pair.Value.NetworkData.Nickname, pair.Value.Position, pair.Value.Rotation);
+				WritePlayerData(pair.Key, pair.Value.NetworkData.Nickname, pair.Value.Position, pair.Value.TargetRotation);
 			}
 		}
 
@@ -57,13 +57,13 @@ public class ServerPacketSender : PacketSender {
 		m_Writer.Put(id);
 		if(id == -1) {
 			m_Writer.Put(Global.Player.GlobalTransform.origin);
-			m_Writer.Put(new Vector2(Global.Player.Camera.RotationDegrees.x, Global.Player.Camera.RotationDegrees.y));
+			m_Writer.Put(new Vector2(Global.Player.CameraHolder.RotationDegrees.x, Global.Player.CameraHolder.RotationDegrees.y));
 		} else {
 			m_Writer.Put(id);
-			NetworkPlayer net_player = NetworkManager.NetworkPlayers[id];
+			RemotePlayer player = NetworkManager.NetworkPlayers[id];
 
-			m_Writer.Put(net_player.Position);
-			m_Writer.Put(net_player.Rotation);
+			m_Writer.Put(player.Position);
+			m_Writer.Put(player.TargetRotation);
 		}
 
 		SendToEveryoneExcept(id, DeliveryMethod.Unreliable);
@@ -82,7 +82,7 @@ public class ServerPacketSender : PacketSender {
 		SendToEveryoneExcept(id, DeliveryMethod.ReliableOrdered);
 	}
 
-	public void PlayerJoined(NetworkPlayerData data) {
+	public void PlayerJoined(RemotePlayerData data) {
 		InitializePacket((byte)PacketFromServer.PlayerJoined);
 		WritePlayerData(data.ID, data.Nickname, Vector3.Zero, Vector2.Zero);
 		SendToEveryoneExcept(data.ID, DeliveryMethod.ReliableOrdered);

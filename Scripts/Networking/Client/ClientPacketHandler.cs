@@ -12,7 +12,7 @@ public class ClientPacketHandler {
 			Vector3 position = reader.GetVector3();
 			Vector2 rotation = reader.GetVector2();
 
-			NetworkPlayerData data = new NetworkPlayerData { 
+			RemotePlayerData data = new RemotePlayerData { 
 				ID = id, 
 				Nickname = nickname,
 			};
@@ -28,16 +28,14 @@ public class ClientPacketHandler {
 		Vector3 position = reader.GetVector3();
 		Vector2 rotation = reader.GetVector2();
 
-		if(NetworkManager.NetworkPlayers.ContainsKey(id)) {
-			NetworkPlayer net_player = NetworkManager.NetworkPlayers[id];
-			net_player.Rotation = rotation;
+		Logger.Info(rotation);
 
-			Transform t = net_player.GlobalTransform;
-			t.origin = position;
-			net_player.GlobalTransform = t;
+		if(NetworkManager.NetworkPlayers.ContainsKey(id)) {
+			RemotePlayer player = NetworkManager.NetworkPlayers[id];
+			player.TargetRotation = rotation;
+			player.TargetPosition = position;
 		} else {
 			Logger.Error("Got a PlayerTransform packet of unexisting NetworkPlayer id!");
-			// NetworkManager.Disconnect();
 		}
 	}
 
@@ -70,17 +68,17 @@ public class ClientPacketHandler {
 		Vector3 position = reader.GetVector3();
 		Vector2 rotation = reader.GetVector2();
 
-		Global.SpawnNetworkPlayer(new NetworkPlayerData { ID = id, Nickname = nickname }, position, rotation);
+		Global.SpawnNetworkPlayer(new RemotePlayerData { ID = id, Nickname = nickname }, position, rotation);
 	}
 
 	public void PlayerDisconnectedHandler(NetPacketReader reader) {
 		int id = reader.GetInt();
 
 		if(NetworkManager.NetworkPlayers.ContainsKey(id)) {
-			NetworkPlayer net_player = NetworkManager.NetworkPlayers[id];
-			Logger.Info($"{net_player.NetworkData.Nickname} has disconnected");
-			net_player.QueueFree();
+			RemotePlayer player = NetworkManager.NetworkPlayers[id];
+			Logger.Info($"{player.NetworkData.Nickname} has disconnected");
 			NetworkManager.NetworkPlayers.Remove(id);
+			player.Delete();
 		}
 	}
 }

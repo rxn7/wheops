@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://Scripts/WeaponSystem/LocalWeaponManager.cs" type="Script" id=1]
+[ext_resource path="res://Scripts/WeaponSystem/LocalPlayerWeaponManager.cs" type="Script" id=1]
 [ext_resource path="res://environment.tres" type="Environment" id=2]
 [ext_resource path="res://Scripts/UI/HUD.cs" type="Script" id=3]
 [ext_resource path="res://Scripts/Player/LocalPlayer.cs" type="Script" id=4]
@@ -72,7 +72,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0 )
 stream = ExtResource( 7 )
 
 [node name="Head" type="Position3D" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0 )
 
 [node name="Bonker" type="RayCast" parent="Head"]
 enabled = true

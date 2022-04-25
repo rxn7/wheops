@@ -84,7 +84,7 @@ public class Global : Node {
 		popup.Damage = damage;
 	}
 	
-	public static void SpawnNetworkPlayer(NetworkPlayerData data, Vector3 position, Vector2 rotation) {
+	public static void SpawnNetworkPlayer(RemotePlayerData data, Vector3 position, Vector2 rotation) {
 		Logger.Info($"Spawning player '{data.Nickname}' of id {data.ID}");
 
 		if(NetworkManager.NetworkPlayers.ContainsKey(data.ID)) {
@@ -92,16 +92,16 @@ public class Global : Node {
 			return;
 		}
 
-		NetworkPlayer network_player = (NetworkPlayer)NetworkPlayer.SCENE.Instance();
-		network_player.InitNetworkData(data);
-		Instance.AddChild(network_player);
+		RemotePlayer player = (RemotePlayer)RemotePlayer.SCENE.Instance();
+		player.InitNetworkData(data);
+		Instance.AddChild(player);
 
-		Transform t = network_player.GlobalTransform;
+		Transform t = player.GlobalTransform;
 		t.origin = position;
-		network_player.GlobalTransform = t;
+		player.GlobalTransform = t;
 
-		network_player.Rotation = rotation;
+		player.TargetRotation = rotation;
 
-		NetworkManager.NetworkPlayers.Add(data.ID, network_player);
+		NetworkManager.NetworkPlayers.Add(data.ID, player);
 	}
 }

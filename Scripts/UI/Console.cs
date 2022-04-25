@@ -36,12 +36,14 @@ public class Console : Control {
 		m_Input.GrabFocus();
 		Visible = true;
 		m_Input.Clear();
+		Input.SetMouseMode(Input.MouseMode.Visible);
 	}
 
 	public void HideConsole() {
 		m_Input.Clear();
 		m_Input.ReleaseFocus();
 		Visible = false;
+		Input.SetMouseMode(Input.MouseMode.Captured);
 	}
 
 	public void HandleCommand(string text) {

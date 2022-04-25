@@ -4,24 +4,23 @@ using System.Linq;
 using System.Net;
 using System.Collections.Generic;
 
+public enum ENetworkState {
+	None,
+	Client,
+	Server,
+};
+
 public class NetworkManager : Node {
 	public static NetworkManager Instance { get; private set; }
 
-	public const float TICK_RATE = 1f / 30;
-	public static readonly int TICK_RATE_MS = Mathf.FloorToInt(TICK_RATE * 1000);
-
-	public enum ENetworkState {
-		None,
-		Client,
-		Server,
-	};
-
+	public const float TICK_RATE = 30;
+	public const float MIN_TIME_BETWEEN_TICKS = 1f / TICK_RATE;
 	public static ENetworkState State { get; private set; }
-
-	public static Dictionary<int, NetworkPlayer> NetworkPlayers { get; private set; }
+	public static Dictionary<int, RemotePlayer> NetworkPlayers { get; private set; }
 	public static bool IsNetworked => State != ENetworkState.None && Network != null && NetworkBase.IsInstanceValid(Network);
 	public static bool IsHost => IsNetworked && State == ENetworkState.Server;
-	public static bool IsSinglePlayer => State == ENetworkState.None;
+	public static float TickTimer { get; private set; } = 0;
+	public static uint CurrentTick { get; private set; } = 0;
 
 	public static int Ping { get; set; }
 	public static NetworkBase Network { get; private set; }
@@ -29,26 +28,25 @@ public class NetworkManager : Node {
 
 	private static string _local_ip = null;
 	private static string _public_ip = null;
-	private static float _tick_timer = 0;
 
 	public override void _EnterTree() {
 		Instance = this;
 		State = ENetworkState.None;
-		NetworkPlayers = new Dictionary<int, NetworkPlayer>();
+		NetworkPlayers = new Dictionary<int, RemotePlayer>();
 	}
 
 	public override void _Process(float dt) {
 		if(IsNetworked) {
-			_tick_timer += dt;
-			if(_tick_timer >= TICK_RATE) {
-				if(Network.NetManager.IsRunning) {
-					Network.Tick();
+			TickTimer += dt;
+			while(TickTimer >= MIN_TIME_BETWEEN_TICKS) {
+				CurrentTick++;
+				Network.Tick();
 
-					if(Network is Server || (Network is Client client && client.ServerPeer != null)) {
-						OnTick(Instance, EventArgs.Empty);
-					}
+				if(Network is Server || (Network is Client client && client.ServerPeer != null)) {
+					OnTick(Instance, EventArgs.Empty);
 				}
-				_tick_timer = 0;
+
+				TickTimer -= MIN_TIME_BETWEEN_TICKS;
 			}
 		}
 	}

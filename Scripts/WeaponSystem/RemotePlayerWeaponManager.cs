@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class NetworkWeaponManager : WeaponManagerBase {
+public class RemotePlayerWeaponManager : WeaponManagerBase {
 	public override void _Ready() {
 		base._Ready();
 	}

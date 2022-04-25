@@ -23,7 +23,7 @@ public class DebugLabel : Label {
 			if(NetworkManager.IsNetworked) {
 				Text += "\n\n== NETWORK ==";
 				Text += $"\nping: {NetworkManager.Ping}";
-				Text += $"\nstate: {Enum.GetName(typeof(NetworkManager.ENetworkState), NetworkManager.State)}";
+				Text += $"\nstate: {Enum.GetName(typeof(ENetworkState), NetworkManager.State)}";
 			}
 
 			Text += "\n\n== STATS ==";
@@ -44,7 +44,7 @@ public class DebugLabel : Label {
 			Text += $"\nvel: {Global.Player.RealVelocity.Length()}";
 			Text += $"\naiming: {Global.Player.IsAiming}";
 			Text += $"\nfully aiming: {Global.Player.IsFullyAiming}";
-			Text += $"\nheat timer: {((LocalWeaponManager)Global.Player.WeaponManager).HeatTimer}";
+			Text += $"\nheat timer: {((LocalPlayerWeaponManager)Global.Player.WeaponManager).HeatTimer}";
 			Text += $"\nrun timer: {Global.Player.RunTimer}";
 		}
 	}

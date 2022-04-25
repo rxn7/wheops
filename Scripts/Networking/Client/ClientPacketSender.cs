@@ -41,13 +41,4 @@ public class ClientPacketSender : PacketSender {
 		SendToServer(DeliveryMethod.ReliableUnordered);
 	}
 	*/
-
-	public void PlayerTransform() {
-		InitializePacket((byte)PacketFromClient.PlayerTransform);
-
-		m_Writer.Put(Global.Player.Position);
-		m_Writer.Put(new Vector2(Global.Player.Camera.RotationDegrees.x, Global.Player.Camera.RotationDegrees.y));
-
-		SendToServer(DeliveryMethod.Unreliable);
-	}
 }

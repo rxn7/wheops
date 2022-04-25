@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using LiteNetLib;
+using LiteNetLib.Utils;
 
 public class Client : NetworkBase {
 	private delegate void ClientPacketHandlerCallback(NetPacketReader reader);
@@ -30,12 +31,18 @@ public class Client : NetworkBase {
 		}
 	}
 
+	private NetDataWriter GetConnectionDataWriter() {
+		NetDataWriter connection_data_writer = new NetDataWriter();
+		connection_data_writer.Put(Global.VERSION);
+		return connection_data_writer;
+	}
+
 	public bool Start(string ip, short port) {
 		Logger.Info("Connecting to the server");
 
 		try {
 			NetManager.Start();
-			NetManager.Connect(ip, port, Global.NET_KEY);
+			NetManager.Connect(ip, port, GetConnectionDataWriter());
 		} catch(Exception ex) {
 			Logger.Error(ex);
 			return false;
@@ -52,7 +59,10 @@ public class Client : NetworkBase {
 	}
 
 	public override void OnPeerDisconnected(NetPeer peer, DisconnectInfo info) {
-		Logger.Info($"Disconnected from the server: {Enum.GetName(typeof(DisconnectReason), info.Reason)}");
+		string reason = "Interal server error occured";
+		info.AdditionalData.TryGetString(out reason);
+
+		Logger.Info($"Disconnected from the server: {Enum.GetName(typeof(DisconnectReason), info.Reason)}, {reason}");
 		NetworkManager.Disconnect();
 	}
 
