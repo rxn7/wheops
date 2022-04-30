@@ -29,16 +29,14 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 	public override void _Process(float dt) {
 		base._Process(dt);
 
-		if(NetworkManager.IsServer || !NetworkManager.IsNetworked) {
-			LastShot += dt;
-			
-			if(HasJustShot && WantsToShoot && HeldWeapon.AmmoLeft > 0) HeatTimer += dt;
-			else HeatTimer = 0;
+		LastShot += dt;
+		
+		if(HasJustShot && WantsToShoot && HeldWeapon.AmmoLeft > 0) HeatTimer += dt;
+		else HeatTimer = 0;
 
-			TakeInput(); 
-			HandleReloading(dt);
-			HandleShooting(dt);
-		}
+		TakeInput(); 
+		HandleReloading(dt);
+		HandleShooting(dt);
 	}
 
 	public override void _Input(InputEvent e) {
