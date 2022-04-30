@@ -78,7 +78,7 @@ public class ClientPacketHandler {
 			RemotePlayer player = NetworkManager.NetworkPlayers[id];
 			Logger.Info($"{player.NetworkData.Nickname} has disconnected");
 			NetworkManager.NetworkPlayers.Remove(id);
-			player.Delete();
+			player.QueueFree();
 		}
 	}
 }

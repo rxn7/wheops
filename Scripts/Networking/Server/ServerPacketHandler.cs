@@ -1,5 +1,4 @@
 using LiteNetLib;
-using LiteNetLib.Utils;
 using Godot;
 using System.Linq;
 
@@ -33,5 +32,21 @@ public class ServerPacketHandler {
 		Logger.Info($"[b]{NetworkManager.NetworkPlayers[peer.Id].NetworkData.Nickname}[/b] says: {msg}");
 
 		m_Server.Sender.ChatMessage(peer.Id, msg);
+	}
+
+	public void PlayerTransformHandler(NetPeer peer, NetPacketReader reader) {
+		int id = peer.Id;
+		Vector3 position = reader.GetVector3();
+		Vector2 rotation = reader.GetVector2();
+
+		if(!NetworkManager.NetworkPlayers.ContainsKey(id)) {
+			Logger.Error($"Got a PlayerTransformPacket from a peer with ID: {id}, which is not registered on the server!");
+		}
+
+		RemotePlayer player = NetworkManager.NetworkPlayers[id];
+		player.TargetPosition = position;
+		player.TargetRotation = rotation;
+
+		m_Server.Sender.PlayerTransform(id);
 	}
 }

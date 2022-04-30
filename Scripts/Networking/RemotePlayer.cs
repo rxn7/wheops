@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 public class RemotePlayer : HumanBase {
 	public static readonly PackedScene SCENE = GD.Load<PackedScene>("res://Scenes/RemotePlayer.tscn");
@@ -22,29 +21,37 @@ public class RemotePlayer : HumanBase {
 		m_ViewmodelHolder = Head.GetNode<Position3D>("ViewmodelHolder");
 		WeaponManager = m_ViewmodelHolder.GetNode<RemotePlayerWeaponManager>("WeaponManager");
 
-		NetworkManager.OnTick += OnTick;
-		
 		m_CurrentTransform = GlobalTransform;
 		m_PrevTransform = m_CurrentTransform;
+
+		NetworkManager.OnTick += OnTick;
+		if(NetworkManager.IsServer) {
+			NetworkManager.OnTick += ServerOnTick;
+		}
 	}
 
 	public override void _Process(float dt) {
 		base._Process(dt);
-
 		SmoothMovement();
 	}
 
-	public void Delete() {
+	public override void _ExitTree() {
 		NetworkManager.OnTick -= OnTick;
-		QueueFree();
+		if(NetworkManager.IsServer) {
+			NetworkManager.OnTick -= ServerOnTick;
+		}
 	}
 
-	private void OnTick(object sender, EventArgs args) {
+	private void OnTick() {
 		m_PrevTransform = m_CurrentTransform;
 
 		Transform t = GlobalTransform;
 		t.origin = TargetPosition;
 		m_CurrentTransform = t;
+	}
+
+	private void ServerOnTick() {
+		NetworkManager.Server.Sender.PlayerTransform(-1);
 	}
 
 	public void InitNetworkData(RemotePlayerData data) {

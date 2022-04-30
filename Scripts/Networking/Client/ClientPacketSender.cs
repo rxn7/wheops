@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using LiteNetLib;
 
 public class ClientPacketSender : PacketSender {
@@ -28,6 +27,13 @@ public class ClientPacketSender : PacketSender {
 		InitializePacket((byte)PacketFromClient.ChatMessage);
 		m_Writer.Put(msg);
 		SendToServer(DeliveryMethod.ReliableOrdered);
+	}
+
+	public void PlayerTransform() {
+		InitializePacket((byte)PacketFromClient.PlayerTransform);
+		m_Writer.Put(Global.Player.GlobalTransform.origin);
+		m_Writer.Put(new Vector2(Global.Player.CameraHolder.RotationDegrees.x, Global.Player.CameraHolder.RotationDegrees.y));
+		SendToServer(DeliveryMethod.Unreliable);
 	}
 
 	/*

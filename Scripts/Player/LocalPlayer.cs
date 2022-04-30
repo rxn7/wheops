@@ -85,13 +85,11 @@ public class LocalPlayer : HumanBase {
 	public override void _Process(float dt) {
 		TakeInput(dt);
 
-		if(NetworkManager.IsHost || !NetworkManager.IsNetworked) {
-			m_Direction = m_Direction.LinearInterpolate(m_Input.Normalized(), m_Accel*dt);
-			HandleRunTimer(dt);
-			CalculateAcceleration();
-			CalculateSpeed(dt);
-			CalculateHeight(dt);
-		}
+		m_Direction = m_Direction.LinearInterpolate(m_Input.Normalized(), m_Accel*dt);
+		HandleRunTimer(dt);
+		CalculateAcceleration();
+		CalculateSpeed(dt);
+		CalculateHeight(dt);
 
 		HandleBobTimer(dt);
 		CalculateBob();
@@ -116,10 +114,12 @@ public class LocalPlayer : HumanBase {
 		CalculatePhysicsMovement(dt);
 	}
 
-	private void OnTick(object sender, EventArgs args) {
-		if(NetworkManager.Network is Server server) {
-			server.Sender.PlayerTransform(-1);
-		} 
+	private void OnTick() {
+		if(NetworkManager.IsServer) {
+			NetworkManager.Server.Sender.PlayerTransform(-1);
+		} else {
+			NetworkManager.Client.Sender.PlayerTransform();
+		}
 	}
 
 	public override void _Input(InputEvent e) {
@@ -145,7 +145,7 @@ public class LocalPlayer : HumanBase {
 		m_TargetCameraTilt = 0;
 
 		EHumanState prev_state = State;
-		if(!Console.Active && (NetworkManager.IsHost || !NetworkManager.IsNetworked)) {
+		if(!Console.Active) {
 			Vector3 forward = GlobalTransform.basis.z;
 			Vector3 right = GlobalTransform.basis.x;
 			if(Input.IsActionPressed("move_right")) m_Input += right;

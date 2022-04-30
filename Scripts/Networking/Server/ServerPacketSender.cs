@@ -4,8 +4,7 @@ using Godot;
 
 public class ServerPacketSender : PacketSender {
 	private Server m_Server;
-
-	public ServerPacketSender(Server serv) : base() { 
+public ServerPacketSender(Server serv) : base() { 
 		m_Server = serv;
 	}
 
@@ -36,6 +35,8 @@ public class ServerPacketSender : PacketSender {
 
 	public void Handshake(NetPeer peer) {
 		InitializePacket((byte)PacketFromServer.Handshake);
+
+		m_Writer.Put(NetworkManager.CurrentTick);
 
 		m_Writer.Put(Global.CurrentMap.Name);
 

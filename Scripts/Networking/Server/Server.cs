@@ -21,6 +21,7 @@ public class Server : NetworkBase {
 		m_PacketHandlerCallbacks = new Dictionary<byte, ServerPacketHandlerCallback>() {
 			{ (byte)PacketFromClient.Handshake, Handler.HandshakeHandler },
 			{ (byte)PacketFromClient.ChatMessage, Handler.ChatMessgeHandler },
+			{ (byte)PacketFromClient.PlayerTransform, Handler.PlayerTransformHandler },
 		};
 	}
 
@@ -45,7 +46,7 @@ public class Server : NetworkBase {
 
 		if(NetworkManager.NetworkPlayers.ContainsKey(peer.Id)) {
 			RemotePlayer player = NetworkManager.NetworkPlayers[peer.Id];
-			player.Delete();
+			player.QueueFree();
 			NetworkManager.NetworkPlayers.Remove(peer.Id);
 		}
 
@@ -88,7 +89,7 @@ public class Server : NetworkBase {
 		base.OnPeerDisconnected(peer, info);
 
 		if(NetworkManager.NetworkPlayers.ContainsKey(peer.Id)) {
-			NetworkManager.NetworkPlayers[peer.Id].Delete();
+			NetworkManager.NetworkPlayers[peer.Id].QueueFree();
 			NetworkManager.NetworkPlayers.Remove(peer.Id);
 		}
 

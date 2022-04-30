@@ -18,13 +18,15 @@ public class NetworkManager : Node {
 	public static ENetworkState State { get; private set; }
 	public static Dictionary<int, RemotePlayer> NetworkPlayers { get; private set; }
 	public static bool IsNetworked => State != ENetworkState.None && Network != null && NetworkBase.IsInstanceValid(Network);
-	public static bool IsHost => IsNetworked && State == ENetworkState.Server;
+	public static bool IsServer => IsNetworked && State == ENetworkState.Server;
 	public static float TickTimer { get; private set; } = 0;
 	public static uint CurrentTick { get; private set; } = 0;
 
 	public static int Ping { get; set; }
 	public static NetworkBase Network { get; private set; }
-	public static event EventHandler OnTick;
+	public static Server Server { get => (Server)Network; }
+	public static Client Client { get => (Client)Network; }
+	public static Action OnTick;
 
 	private static string _local_ip = null;
 	private static string _public_ip = null;
@@ -43,7 +45,7 @@ public class NetworkManager : Node {
 				Network.Tick();
 
 				if(Network is Server || (Network is Client client && client.ServerPeer != null)) {
-					OnTick(Instance, EventArgs.Empty);
+					OnTick();
 				}
 
 				TickTimer -= MIN_TIME_BETWEEN_TICKS;

@@ -29,7 +29,7 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 	public override void _Process(float dt) {
 		base._Process(dt);
 
-		if(NetworkManager.IsHost || !NetworkManager.IsNetworked) {
+		if(NetworkManager.IsServer || !NetworkManager.IsNetworked) {
 			LastShot += dt;
 			
 			if(HasJustShot && WantsToShoot && HeldWeapon.AmmoLeft > 0) HeatTimer += dt;
@@ -42,7 +42,7 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 	}
 
 	public override void _Input(InputEvent e) {
-		if(Console.Instance.Visible || (NetworkManager.IsNetworked && !NetworkManager.IsHost)) return;
+		if(Console.Instance.Visible || (NetworkManager.IsNetworked && !NetworkManager.IsServer)) return;
 
 		if(e.IsActionPressed("weapon_up")) {
 			QueueWeaponChange(QueuedWeaponID+1);
@@ -53,7 +53,7 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 
 
 	private void TakeInput() {
-		if(Console.Instance.Visible || (NetworkManager.IsNetworked && !NetworkManager.IsHost)) return;
+		if(Console.Instance.Visible || (NetworkManager.IsNetworked && !NetworkManager.IsServer)) return;
 
 		if(Input.IsActionJustPressed("reload") && HeldWeapon.AmmoLeft < HeldWeapon.Data.AmmoCap && DrawTimer == 0) {
 			StartReload();

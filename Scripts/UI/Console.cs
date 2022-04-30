@@ -4,6 +4,7 @@ using Godot;
 
 public class Console : Control {
 	public static Console Instance {get; private set; }
+	public const int MAX_OUTPUT_LINES = 3;
 
 	private LineEdit m_Input;
 	private RichTextLabel m_Output;
@@ -56,29 +57,35 @@ public class Console : Control {
 		args = args.Skip(1).ToArray();
 
 		CommandManager.Exeucte(command, args);
-
-		//m_output.AppendBbcode("\n");
 	}
 
-	// TODO: Delete first line while line count is bigger than X
+	private void AppendOutput(string text) {
+		/*
+		while(m_Output.GetLineCount() > MAX_OUTPUT_LINES)
+			m_Output.RemoveLine(0);
+		*/
+
+		m_Output.AppendBbcode(text);
+	}
+
 	public void Print(object text) {
-		m_Output.AppendBbcode($"[color=white]{text}[/color]\n");
+		AppendOutput($"[color=white]{text}[/color]\n");
 	}
 
 	public void PrintError(object text) {
-		m_Output.AppendBbcode($"[color=red]ERROR: {text}[/color]\n");
+		AppendOutput($"[color=red]ERROR: {text}[/color]\n");
 	}
 
 	public void PrintWarning(object text) {
-		m_Output.AppendBbcode($"[color=yellow]WARN: {text}[/color]\n");
+		AppendOutput($"[color=yellow]WARN: {text}[/color]\n");
 	}
 
 	public void PrintInfo(object text) {
-		m_Output.AppendBbcode($"[color=cyan]INFO: {text}[/color]\n");
+		AppendOutput($"[color=cyan]INFO: {text}[/color]\n");
 	}
 
 	public void PrintDebug(object text) {
-		m_Output.AppendBbcode($"[color=blue]DEBUG: {text}[/color]\n");
+		AppendOutput($"[color=blue]DEBUG: {text}[/color]\n");
 	}
 
 	public void ClearOutput() {

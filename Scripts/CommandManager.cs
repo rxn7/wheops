@@ -158,7 +158,7 @@ public static class CommandManager {
 			return false;
 		}
 
-		if(NetworkManager.IsNetworked && !NetworkManager.IsHost) {
+		if(NetworkManager.IsNetworked && !NetworkManager.IsServer) {
 			Logger.Error("Only host can change map!");
 			return false;
 		}
@@ -212,7 +212,8 @@ public static class CommandManager {
 
 	public static bool CMD_Nick(Command cmd, string[] args) {
 		if(args.Length < 1) {
-			return false;
+			Logger.Info(Global.Nickname);
+			return true;
 		}
 
 		string nickname = args[0];
