@@ -35,9 +35,6 @@ public ServerPacketSender(Server serv) : base() {
 
 	public void Handshake(NetPeer peer) {
 		InitializePacket((byte)PacketFromServer.Handshake);
-
-		m_Writer.Put(NetworkManager.CurrentTick);
-
 		m_Writer.Put(Global.CurrentMap.Name);
 
 		m_Writer.Put(NetworkManager.NetworkPlayers.Count + 1);
