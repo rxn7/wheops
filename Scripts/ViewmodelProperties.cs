@@ -1,7 +1,7 @@
 using Godot;
 
 public class ViewmodelProperties {
-	public static readonly ViewmodelProperties NormalConfiguration = new ViewmodelProperties(new Vector3(0.12f, -0.172f, -0.235f), new Vector3(4.291f, 5.891f, 5.256f));
+	public static readonly ViewmodelProperties NormalConfiguration = new ViewmodelProperties(new Vector3(0.05f, -0.172f, -0.235f), new Vector3(4.291f, 4.0f, 5.256f));
 	public static readonly ViewmodelProperties CrouchConfiguration = new ViewmodelProperties(new Vector3(0.05f, -0.172f, -0.15f), new Vector3(-1f, 50f, 20));
 	public static readonly ViewmodelProperties AimConfiguration = new ViewmodelProperties(new Vector3(0f, -0.0881f, -0.2f), new Vector3(0f, 0f, 0f));
 	public static readonly ViewmodelProperties ShootConfiguration = new ViewmodelProperties(NormalConfiguration.Position, NormalConfiguration.Rotation, 40.0f);

@@ -9,10 +9,11 @@ public static class CommandManager {
 		AddCommand(new Command("map", CMD_Map, "Loads the specified map", new Command.Argument("map", false)));
 		AddCommand(new Command("clear", CMD_Clear, "Clears the console output", null));
 		AddCommand(new Command("list", CMD_List, "Lists all the available commnds", null));
-		AddCommand(new Command("debug", CMD_Debug, "Toggles the debug visibility", null) );
+		AddCommand(new Command("debug", CMD_Debug, "Toggles the debug visibility", null));
 		AddCommand(new Command("ch_gap", CMD_CrosshairGap, "Sets the crosshair's gap", new Command.Argument("value", false, Crosshair.DEFAULT_GAP)));
 		AddCommand(new Command("ch_color", CMD_CrosshairColor, "Sets the crosshair's color", new Command.Argument("red", false, 255), new Command.Argument("green", false, 255), new Command.Argument("blue", false, 255)));
 		AddCommand(new Command("ch_size", CMD_CrosshairSize, "Sets the crosshair's length and width", new Command.Argument("length", false, Crosshair.DEFAULT_LENGTH), new Command.Argument("width", false, Crosshair.DEFAULT_WIDTH)));
+		AddCommand(new Command("cfg_clear", CMD_ConfigClear, "Clears the config"));
 		AddCommand(new Command("sens", CMD_MouseSensetivity, "Sets the mouse sensetivity", new Command.Argument("sens", false, LocalPlayer.DEFAULT_MOUSE_SENS)));
 		AddCommand(new Command("host", CMD_Host, "Hosts a server", new Command.Argument("port", true, (short)26950), new Command.Argument("max clients", true, (int)10)));
 		AddCommand(new Command("connect", CMD_Connect, "Connects to a server", new Command.Argument("ip", false), new Command.Argument("port", false, 26950)));
@@ -28,13 +29,13 @@ public static class CommandManager {
 	}
 
 	public static void Exeucte(string name, string[] args) {
-		if(!Commands.ContainsKey(name)) {
+		if (!Commands.ContainsKey(name)) {
 			Logger.Error($"Invalid command: {name}");
 			return;
 		}
 
 		Command cmd = Commands[name];
-		if(!cmd.Handler(cmd, args)) {
+		if (!cmd.Handler(cmd, args)) {
 			Logger.Error($"Failed to execute command {name}");
 			Logger.Info($"Usage: {cmd.GetUsage()}");
 		}
@@ -48,8 +49,8 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_List(Command cmd, string[] args) {
-		string output="";
-		foreach(Command c in Commands.Values) {
+		string output = "";
+		foreach (Command c in Commands.Values) {
 			output += $" > {c.GetUsage()} - {c.Description}\n";
 		}
 
@@ -58,7 +59,7 @@ public static class CommandManager {
 		return true;
 	}
 
-	public static bool CMD_Exit(Command cmd, string[] args) { 
+	public static bool CMD_Exit(Command cmd, string[] args) {
 		Logger.Info("Closing the game!");
 		Global.Instance.GetTree().Quit();
 
@@ -66,7 +67,7 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_Debug(Command cmd, string[] args) {
-		if(DebugLabel.Instance.Visible) {
+		if (DebugLabel.Instance.Visible) {
 			DebugLabel.Hide();
 		} else {
 			DebugLabel.Show();
@@ -76,14 +77,14 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_CrosshairGap(Command cmd, string[] args) {
-		if(args.Length != 1) {
+		if (args.Length != 1) {
 			return false;
 		}
 
 		float gap;
-		if(args[0] == "default" || args[0] == "def") {
+		if (args[0] == "default" || args[0] == "def") {
 			gap = Crosshair.DEFAULT_GAP;
-		} else if(!float.TryParse(args[0], out gap)) {
+		} else if (!float.TryParse(args[0], out gap)) {
 			return false;
 		}
 
@@ -95,15 +96,15 @@ public static class CommandManager {
 
 	public static bool CMD_CrosshairColor(Command cmd, string[] args) {
 		Color color;
-		if(args.Length == 1 && (args[0] == "def" || args[0] == "default")) {
+		if (args.Length == 1 && (args[0] == "def" || args[0] == "default")) {
 			color = Crosshair.DEFAULT_COLOR;
-		} else if(args.Length == 3){
+		} else if (args.Length == 3) {
 			byte r, g, b;
-			if(!byte.TryParse(args[0], out r)) return false;
-			if(!byte.TryParse(args[1], out g)) return false;
-			if(!byte.TryParse(args[2], out b)) return false;
+			if (!byte.TryParse(args[0], out r)) return false;
+			if (!byte.TryParse(args[1], out g)) return false;
+			if (!byte.TryParse(args[2], out b)) return false;
 
-			color = Color.Color8(r,g,b);
+			color = Color.Color8(r, g, b);
 		} else {
 			return false;
 		}
@@ -116,12 +117,12 @@ public static class CommandManager {
 
 	public static bool CMD_CrosshairSize(Command cmd, string[] args) {
 		float length, width;
-		if(args.Length == 1 && (args[0] == "def" || args[0] == "default")) {
+		if (args.Length == 1 && (args[0] == "def" || args[0] == "default")) {
 			width = Crosshair.DEFAULT_WIDTH;
 			length = Crosshair.DEFAULT_LENGTH;
-		} else if(args.Length == 2) {
-			if(!float.TryParse(args[0], out width)) return false;
-			if(!float.TryParse(args[1], out length)) return false;
+		} else if (args.Length == 2) {
+			if (!float.TryParse(args[0], out width)) return false;
+			if (!float.TryParse(args[1], out length)) return false;
 		} else {
 			return false;
 		}
@@ -136,14 +137,14 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_MouseSensetivity(Command cmd, string[] args) {
-		if(args.Length != 1) {
+		if (args.Length != 1) {
 			return false;
 		}
 
 		float sens;
-		if(args[0] == "def" || args[0] == "default") {
+		if (args[0] == "def" || args[0] == "default") {
 			sens = LocalPlayer.DEFAULT_MOUSE_SENS;
-		} else if(!float.TryParse(args[0], out sens)) {
+		} else if (!float.TryParse(args[0], out sens)) {
 			return false;
 		}
 
@@ -154,11 +155,11 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_Map(Command cmd, string[] args) {
-		if(args.Length != 1) {
+		if (args.Length != 1) {
 			return false;
 		}
 
-		if(NetworkManager.IsNetworked && !NetworkManager.IsServer) {
+		if (NetworkManager.IsOnline && !NetworkManager.IsServer) {
 			Logger.Error("Only host can change map!");
 			return false;
 		}
@@ -170,34 +171,34 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_Host(Command cmd, string[] args) {
-		if(args.Length > 2) {
+		if (args.Length > 2) {
 			return false;
 		}
 
 		short port;
-		if(args.Length < 1) port = (short)cmd.Arguments[0].DefaultValue;
-		else if(!short.TryParse(args[0], out port)) return false;
+		if (args.Length < 1) port = (short)cmd.Arguments[0].DefaultValue;
+		else if (!short.TryParse(args[0], out port)) return false;
 
 		int max_clients;
-		if(args.Length < 2) max_clients = (int)cmd.Arguments[1].DefaultValue;
-		else if(!int.TryParse(args[1], out max_clients)) return false;
+		if (args.Length < 2) max_clients = (int)cmd.Arguments[1].DefaultValue;
+		else if (!int.TryParse(args[1], out max_clients)) return false;
 
 		return NetworkManager.StartServer(port, max_clients);
 	}
 
 	public static bool CMD_Connect(Command cmd, string[] args) {
-		if(args.Length < 2) {
+		if (args.Length < 2) {
 			return false;
 		}
 
 		string ip = args[0];
 		short port;
-		
-		if(args.Length < 2) {
+
+		if (args.Length < 2) {
 			port = 26950;
 			Logger.Info("Port not specified, using 26950 by default");
 		} else {
-			if(!short.TryParse(args[1], out port)) {
+			if (!short.TryParse(args[1], out port)) {
 				return false;
 			}
 		}
@@ -211,7 +212,7 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_Nick(Command cmd, string[] args) {
-		if(args.Length < 1) {
+		if (args.Length < 1) {
 			Logger.Info(Global.Nickname);
 			return true;
 		}
@@ -224,19 +225,26 @@ public static class CommandManager {
 	}
 
 	public static bool CMD_Say(Command cmd, string[] args) {
-		if(args.Length < 1) {
+		if (args.Length < 1) {
 			return false;
 		}
 
 		string message = string.Join(" ", args);
-		if(NetworkManager.Network is Server server) {
+		if (NetworkManager.Network is Server server) {
 			server.Sender.ChatMessage(-1, message);
-		} else if(NetworkManager.Network is Client client) {
+		} else if (NetworkManager.Network is Client client) {
 			client.Sender.ChatMessage(message);
 		} else {
 			Logger.Error("You need to be on a server to send a message");
 			return false;
 		}
+
+		return true;
+	}
+
+	public static bool CMD_ConfigClear(Command cmd, string[] args) {
+		Config.DeleteConfig();
+		Logger.Info("Config cleared");
 
 		return true;
 	}

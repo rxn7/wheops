@@ -1,0 +1,11 @@
+C:\Users\kermi\dev\godot\wheops\.mono\temp\obj\Debug\Wheops.csproj.AssemblyReference.cache
+C:\Users\kermi\dev\godot\wheops\.mono\temp\obj\Debug\Wheops.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\kermi\dev\godot\wheops\.mono\temp\obj\Debug\Wheops.AssemblyInfoInputs.cache
+C:\Users\kermi\dev\godot\wheops\.mono\temp\obj\Debug\Wheops.AssemblyInfo.cs
+C:\Users\kermi\dev\godot\wheops\.mono\temp\obj\Debug\Wheops.csproj.CoreCompileInputs.cache
+C:\Users\kermi\dev\godot\wheops\.mono\temp\bin\Debug\Wheops.dll
+C:\Users\kermi\dev\godot\wheops\.mono\temp\bin\Debug\Wheops.pdb
+C:\Users\kermi\dev\godot\wheops\.mono\temp\bin\Debug\LiteNetLib.dll
+C:\Users\kermi\dev\godot\wheops\.mono\temp\obj\Debug\Wheops.csproj.CopyComplete
+C:\Users\kermi\dev\godot\wheops\.mono\temp\obj\Debug\Wheops.dll
+C:\Users\kermi\dev\godot\wheops\.mono\temp\obj\Debug\Wheops.pdb

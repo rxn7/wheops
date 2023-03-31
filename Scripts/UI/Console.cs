@@ -3,7 +3,7 @@ using System.Linq;
 using Godot;
 
 public class Console : Control {
-	public static Console Instance {get; private set; }
+	public static Console Instance { get; private set; }
 	public const int MAX_OUTPUT_LINES = 3;
 
 	private LineEdit m_Input;
@@ -21,35 +21,35 @@ public class Console : Control {
 	}
 
 	public override void _Input(InputEvent ev) {
-		if(Input.IsActionJustPressed("toggle_console")) {
+		if (Input.IsActionJustPressed("toggle_console")) {
 			ToggleConsole();
 		}
 
-		if(!Visible) return;
+		if (!Visible) return;
 	}
 
 	public void ToggleConsole() {
-		if(Visible)     HideConsole();
-		else            OpenConsole();
+		if (Visible) HideConsole();
+		else OpenConsole();
 	}
 
 	public void OpenConsole() {
 		m_Input.GrabFocus();
 		Visible = true;
 		m_Input.Clear();
-		Input.SetMouseMode(Input.MouseMode.Visible);
+		Input.MouseMode = Input.MouseModeEnum.Visible;
 	}
 
 	public void HideConsole() {
 		m_Input.Clear();
 		m_Input.ReleaseFocus();
 		Visible = false;
-		Input.SetMouseMode(Input.MouseMode.Captured);
+		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
 	public void HandleCommand(string text) {
-		string[] args = text.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-		if(args.Length < 1) return;
+		string[] args = text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+		if (args.Length < 1) return;
 
 		Print(">> " + text);
 
@@ -103,7 +103,7 @@ public class Console : Control {
 	}
 
 	private void OnInputChanged(string text) {
-		if(text == "`") {
+		if (text == "`") {
 			m_Input.Clear();
 		}
 	}

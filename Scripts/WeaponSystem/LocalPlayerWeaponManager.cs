@@ -30,43 +30,43 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 		base._Process(dt);
 
 		LastShot += dt;
-		
-		if(HasJustShot && WantsToShoot && HeldWeapon.AmmoLeft > 0) HeatTimer += dt;
+
+		if (HasJustShot && WantsToShoot && HeldWeapon.AmmoLeft > 0) HeatTimer += dt;
 		else HeatTimer = 0;
 
-		TakeInput(); 
+		TakeInput();
 		HandleReloading(dt);
 		HandleShooting(dt);
 	}
 
 	public override void _Input(InputEvent e) {
-		if(Console.Instance.Visible || (NetworkManager.IsNetworked && !NetworkManager.IsServer)) return;
+		if (Console.Instance.Visible || (NetworkManager.IsOnline && !NetworkManager.IsServer)) return;
 
-		if(e.IsActionPressed("weapon_up")) {
-			QueueWeaponChange(QueuedWeaponID+1);
-		} else if(e.IsActionPressed("weapon_down")) {
-			QueueWeaponChange(QueuedWeaponID-1);
+		if (e.IsActionPressed("weapon_up")) {
+			QueueWeaponChange(QueuedWeaponID + 1);
+		} else if (e.IsActionPressed("weapon_down")) {
+			QueueWeaponChange(QueuedWeaponID - 1);
 		}
 	}
 
 
 	private void TakeInput() {
-		if(Console.Instance.Visible || (NetworkManager.IsNetworked && !NetworkManager.IsServer)) return;
+		if (Console.Instance.Visible || (NetworkManager.IsOnline && !NetworkManager.IsServer)) return;
 
-		if(Input.IsActionJustPressed("reload") && HeldWeapon.AmmoLeft < HeldWeapon.Data.AmmoCap && DrawTimer == 0) {
+		if (Input.IsActionJustPressed("reload") && HeldWeapon.AmmoLeft < HeldWeapon.Data.AmmoCap && DrawTimer == 0) {
 			StartReload();
 		}
 
-		for(int i=0; i<m_Loadout.Weapons.Length && i<9; ++i) {
-			if(Input.IsActionJustPressed("weapon" + i)) {
+		for (int i = 0; i < m_Loadout.Weapons.Length && i < 9; ++i) {
+			if (Input.IsActionJustPressed("weapon" + i)) {
 				QueueWeaponChange(i);
 			}
 		}
 	}
 
 	public override void QueueWeaponChange(int idx) {
-		if(Loadout.Weapons.Length <= idx || idx < 0) return;
-		if(idx == QueuedWeaponID) return;
+		if (Loadout.Weapons.Length <= idx || idx < 0) return;
+		if (idx == QueuedWeaponID) return;
 
 		QueuedWeaponID = idx;
 		DrawTimer = m_Loadout.Weapons[QueuedWeaponID].Data.DrawTime;
@@ -75,10 +75,10 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 	}
 
 	protected override void ChangeWeapon(int idx) {
-		if(Loadout.Weapons.Length <= idx || idx < 0) return;
-		if(idx == HeldWeapon?.Data.ID) return;
+		if (Loadout.Weapons.Length <= idx || idx < 0) return;
+		if (idx == HeldWeapon?.Data.ID) return;
 
-		if(HeldWeapon != null) {
+		if (HeldWeapon != null) {
 			HeldWeapon.Visible = false;
 		}
 
@@ -88,7 +88,7 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 	}
 
 	private void StartReload() {
-		if(IsReloading) return;
+		if (IsReloading) return;
 
 		IsReloading = true;
 		m_ReloadTimer = 0;
@@ -98,7 +98,7 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 	private void FinishReload() {
 		IsReloading = false;
 		HeldWeapon.Reload();
-		SoundEffect.Spawn(RELOAD_SOUND, Random.RangeF(0.9f,1.1f));
+		SoundEffect.Spawn(RELOAD_SOUND, Random.RangeF(0.9f, 1.1f));
 		Global.Player.Hud.UpdateWeaponInfoLabel();
 	}
 
@@ -111,20 +111,20 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 
 	private void ShootRaycast() {
 		PhysicsDirectSpaceState space = PhysicsServer.SpaceGetDirectState(Global.Player.Camera.GetWorld().Space);
-		Vector3 start = Global.Player.Camera.GlobalTransform.origin; 
+		Vector3 start = Global.Player.Camera.GlobalTransform.origin;
 		Vector3 end = start - Global.Player.Camera.GlobalTransform.basis.z * Global.Player.WeaponManager.HeldWeapon.Data.RaycastDistance;
 		Godot.Collections.Dictionary result = space.IntersectRay(start, end, new Godot.Collections.Array(Global.Player), m_ShootRaycastMask, true, true);
 
-		if(result.Count > 0) {
+		if (result.Count > 0) {
 			Spatial collider = (Spatial)result["collider"];
 			Vector3 position = (Vector3)result["position"];
 			Vector3 normal = (Vector3)result["normal"];
-			
-			if(collider == null) return;
 
-			if(collider is RigidBody rigidbody) {
+			if (collider == null) return;
+
+			if (collider is RigidBody rigidbody) {
 				rigidbody.ApplyImpulse(position - collider.GlobalTransform.origin, end * HeldWeapon.Data.HitForce);
-			} else if(collider is Target target) {
+			} else if (collider is Target target) {
 				target.Hit(position, normal);
 			}
 
@@ -133,9 +133,9 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 	}
 
 	private void HandleReloading(float dt) {
-		if(IsReloading) {
+		if (IsReloading) {
 			m_ReloadTimer += dt;
-			if(m_ReloadTimer >= HeldWeapon.Data.ReloadTime) {
+			if (m_ReloadTimer >= HeldWeapon.Data.ReloadTime) {
 				FinishReload();
 			}
 		}
@@ -143,17 +143,17 @@ public class LocalPlayerWeaponManager : WeaponManagerBase {
 
 	private void HandleShooting(float dt) {
 		m_ShootTimer += dt;
-		if(!Console.Active && m_ShootTimer >= HeldWeapon?.Data.FireRate) {
-			if(WantsToShoot) {
-				if(CanShoot && ShootTimerFinished) {
+		if (!Console.Active && m_ShootTimer >= HeldWeapon?.Data.FireRate) {
+			if (WantsToShoot) {
+				if (CanShoot && ShootTimerFinished) {
 					Shoot();
 					m_ShootTimer = 0;
-				} else if(Input.IsActionJustPressed("fire")) {
+				} else if (Input.IsActionJustPressed("fire")) {
 					m_ShootTimer = 0;
 					LastShot = 0;
-					SoundEffect.Spawn(DRYFIRE_SOUND, Random.RangeF(0.8f,1.2f));	
+					SoundEffect.Spawn(DRYFIRE_SOUND, Random.RangeF(0.8f, 1.2f));
 				}
 			}
-		} 
+		}
 	}
 }
